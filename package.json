@@ -1,0 +1,12 @@
+{
+  "name": "mobile-starter-kit",
+  "private": true,
+  "workspaces": [
+    "cli"
+  ],
+  "scripts": {
+    "cli:build": "npm --workspace cli run build",
+    "cli:dev": "npm --workspace cli run dev",
+    "cli:test": "npm --workspace cli run test"
+  }
+}
