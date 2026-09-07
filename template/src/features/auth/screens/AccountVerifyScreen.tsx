@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native';
+import {  Text } from 'react-native';
+import { Screen } from '@/components/app/Screen';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@/app/navigation/types';
 
@@ -13,7 +14,7 @@ export function AccountVerifyScreen({ route }: Props) {
   const { email, purpose } = route.params;
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <Screen className="flex-1 items-center justify-center">
       <Text className="text-2xl font-bold">
         Account Verify
       </Text>
@@ -25,6 +26,6 @@ export function AccountVerifyScreen({ route }: Props) {
       <Text className="mt-2">
         {purpose}
       </Text>
-    </View>
+    </Screen>
   );
 }

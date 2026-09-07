@@ -44,7 +44,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     [session, isLoading]
   );
   return (
-    <AuthContext.Provider value={value}>Â
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
