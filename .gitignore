@@ -12,3 +12,6 @@ coverage/
 !.env.example
 
 .expo/
+
+cli/template/
+*.tgz

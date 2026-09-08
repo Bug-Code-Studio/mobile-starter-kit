@@ -6,11 +6,26 @@
   "bin": {
     "create-app": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "template"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/index.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepack": "tsx scripts/prepare-template.ts && npm run build"
   },
+  "keywords": [
+    "expo",
+    "react-native",
+    "expo-template",
+    "react-native-template",
+    "cli",
+    "starter-kit"
+  ],
+  "author": "BugCode Studio <info@bugcodestudio.com>",
+  "license": "MIT",
   "dependencies": {
     "fs-extra": "^11.3.0"
   },
