@@ -1,6 +1,7 @@
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { Text, Pressable } from "react-native";
-import { Screen } from "@/components/app/Screen";
+import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
+import { Screen } from "@/components/app/AppScreen";
 
 export function OnboardingScreen() {
   const completeOnboarding = useOnboardingStore(

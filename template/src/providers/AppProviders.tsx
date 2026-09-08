@@ -6,7 +6,7 @@ import { AuthProvider } from "@/providers/AuthProvider";
 
 export function AppProviders({ children }: PropsWithChildren) {
   return (
-    <GluestackUIProvider mode="system">
+    <GluestackUIProvider mode="light">
       <QueryProvider>
         <AuthProvider>{children}</AuthProvider>
       </QueryProvider>

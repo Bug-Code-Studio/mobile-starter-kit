@@ -6,6 +6,7 @@ import { AuthNavigator } from "@/app/navigation/AuthNavigator";
 import { MainNavigator } from "@/app/navigation/MainNavigator";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useAuth } from "@/providers/AuthProvider";
+import { useAuthFlowStore } from "@/stores/authFlowStore";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -16,6 +17,10 @@ export function RootNavigator() {
 
   const {session, isLoading: isAuthLoading} = useAuth();
 
+  const passwordResetPending = useAuthFlowStore(
+    (state) => state.passwordResetPending,
+  );
+
   if (!hasHydrated || isAuthLoading) {
     return <AppLoadingScreen />;
   }
@@ -23,7 +28,7 @@ export function RootNavigator() {
   let initialRouteName: keyof RootStackParamList;
   if (!isOnboardingCompleted) {
     initialRouteName = "Onboarding";
-  } else if (!session) {
+  } else if (!session || passwordResetPending) {
     initialRouteName = "Auth";
   } else {
     initialRouteName = "Main";
