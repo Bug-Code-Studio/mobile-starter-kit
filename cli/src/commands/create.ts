@@ -7,6 +7,8 @@ import { copyTemplate } from '../utils/template.js';
 
 import { installDependencies } from '../utils/install.js';
 
+import { initializeGit } from '../utils/git.js';
+
 import type {
   PackageManager,
   ProjectNames,
@@ -14,6 +16,7 @@ import type {
 
 type CreateProjectOptions = {
   install: boolean;
+  git: boolean;
 };
 
 export async function createProject(
@@ -65,7 +68,21 @@ export async function createProject(
     );
   }
 
+  if (options.git) {
+    console.log(
+      '\nInitializing Git...\n',
+    );
+
+    await initializeGit(
+      targetPath,
+    );
+  } else {
+    console.log(
+      '\nSkipping Git initialization (--no-git).\n',
+    );
+  }
+
   console.log(
-    `Successfully created ${names.displayName}!\n`,
+    `\nSuccessfully created ${names.displayName}!\n`,
   );
 }

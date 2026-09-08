@@ -47,6 +47,9 @@ async function main() {
   const noInstall =
     args.includes('--no-install');
 
+  const noGit =
+    args.includes('--no-git');
+
   const cliRoot = path.resolve(
     import.meta.dirname,
     '..',
@@ -97,6 +100,7 @@ async function main() {
     packageManager,
     {
       install: !noInstall,
+      git: !noGit,
     },
   );
 }
