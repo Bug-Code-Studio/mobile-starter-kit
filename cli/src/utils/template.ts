@@ -7,13 +7,24 @@ export async function copyTemplate(
 ) {
   await fs.copy(templatePath, targetPath, {
     filter: (src) => {
-      const relativePath = path.relative(templatePath, src);
-
-      return (
-        relativePath !== 'node_modules' &&
-        relativePath !== 'package-lock.json' &&
-        relativePath !== '.git'
+      const relativePath = path.relative(
+        templatePath,
+        src,
       );
+
+      const firstSegment = relativePath.split(
+        path.sep,
+      )[0];
+
+      return ![
+        'node_modules',
+        '.git',
+        'package-lock.json',
+        'yarn.lock',
+        'pnpm-lock.yaml',
+        'bun.lock',
+        'bun.lockb',
+      ].includes(firstSegment);
     },
   });
 }
