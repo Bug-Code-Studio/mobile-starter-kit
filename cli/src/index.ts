@@ -16,6 +16,10 @@ import {
   resolvePackageManager,
 } from './utils/package-manager.js';
 
+import {
+  error,
+} from './utils/logger.js';
+
 async function main() {
   const args = process.argv.slice(2);
 
@@ -27,12 +31,10 @@ async function main() {
     validateProjectName(appName);
 
   if (validationError) {
-    console.error(
-      `\n✖ ${validationError}\n`,
-    );
+    error(validationError);
 
     console.error(
-      'Usage: create-app <app-name> [options]',
+      '\nUsage: create-app <app-name> [options]',
     );
 
     process.exit(1);
@@ -74,24 +76,18 @@ async function main() {
   );
 
   if (!(await fs.pathExists(templatePath))) {
-    console.error(
-      '\n✖ Template directory not found.\n',
-    );
+    error('Template directory not found.');
 
     process.exit(1);
   }
 
   if (await fs.pathExists(targetPath)) {
-    console.error(
-      `\n✖ Directory "${appName}" already exists.\n`,
+    error(
+      `Directory "${appName}" already exists.`,
     );
 
     process.exit(1);
   }
-
-  console.log(
-    `\nUsing ${packageManager}...\n`,
-  );
 
   await createProject(
     projectNames,

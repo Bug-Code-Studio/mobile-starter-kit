@@ -9,6 +9,14 @@ import { installDependencies } from '../utils/install.js';
 
 import { initializeGit } from '../utils/git.js';
 
+import {
+  blank,
+  divider,
+  info,
+  step,
+  success,
+} from '../utils/logger.js';
+
 import type {
   PackageManager,
   ProjectNames,
@@ -30,59 +38,76 @@ export async function createProject(
     `\nCreating ${names.displayName}...\n`,
   );
 
-  console.log('✔ Copying template...');
+  step('Copying template');
 
   await copyTemplate(
     templatePath,
     targetPath,
   );
 
-  console.log(
-    '✔ Configuring package.json...',
-  );
+  success('Template copied');
+
+  step('Configuring package.json');
 
   await configurePackageJson(
     targetPath,
     names,
   );
 
-  console.log('✔ Configuring Expo...');
+  success('package.json configured');
+
+  step('Configuring Expo');
 
   await configureAppJson(
     targetPath,
     names,
   );
 
+  success('Expo configured');
+
   if (options.install) {
-    console.log(
-      `\nInstalling dependencies with ${packageManager}...\n`,
+    step(
+      `Installing dependencies with ${packageManager}`,
     );
 
     await installDependencies(
       packageManager,
       targetPath,
     );
+
+    success('Dependencies installed');
   } else {
-    console.log(
-      '\nSkipping dependency installation (--no-install).\n',
+    info(
+      'Skipping dependency installation (--no-install)',
     );
   }
 
   if (options.git) {
-    console.log(
-      '\nInitializing Git...\n',
-    );
+    step('Initializing Git');
 
     await initializeGit(
       targetPath,
     );
+
+    success('Git initialized');
   } else {
-    console.log(
-      '\nSkipping Git initialization (--no-git).\n',
+    info(
+      'Skipping Git initialization (--no-git)',
     );
   }
 
-  console.log(
-    `\nSuccessfully created ${names.displayName}!\n`,
+  divider();
+
+  success(
+    `${names.displayName} created successfully!`,
   );
+
+  blank();
+
+  console.log('Next steps:\n');
+
+  console.log(`  cd ${names.displayName}`);
+  console.log('  npx expo start');
+
+  divider();
 }
