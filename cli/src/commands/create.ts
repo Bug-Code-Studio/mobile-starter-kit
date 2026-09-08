@@ -12,11 +12,16 @@ import type {
   ProjectNames,
 } from '../types/project.js';
 
+type CreateProjectOptions = {
+  install: boolean;
+};
+
 export async function createProject(
   names: ProjectNames,
   templatePath: string,
   targetPath: string,
   packageManager: PackageManager,
+  options: CreateProjectOptions,
 ) {
   console.log(
     `\nCreating ${names.displayName}...\n`,
@@ -45,16 +50,22 @@ export async function createProject(
     names,
   );
 
-  console.log(
-    `\nInstalling dependencies with ${packageManager}...\n`,
-  );
+  if (options.install) {
+    console.log(
+      `\nInstalling dependencies with ${packageManager}...\n`,
+    );
 
-  await installDependencies(
-    packageManager,
-    targetPath,
-  );
+    await installDependencies(
+      packageManager,
+      targetPath,
+    );
+  } else {
+    console.log(
+      '\nSkipping dependency installation (--no-install).\n',
+    );
+  }
 
   console.log(
-    `\nSuccessfully created ${names.displayName}!\n`,
+    `Successfully created ${names.displayName}!\n`,
   );
 }
