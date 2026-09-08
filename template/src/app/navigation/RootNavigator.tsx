@@ -11,11 +11,12 @@ import { useAuthFlowStore } from "@/stores/authFlowStore";
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
-
-  const isOnboardingCompleted = useOnboardingStore((state) => state.isCompleted);
+  const isOnboardingCompleted = useOnboardingStore(
+    (state) => state.isCompleted,
+  );
   const hasHydrated = useOnboardingStore((state) => state.hasHydrated);
 
-  const {session, isLoading: isAuthLoading} = useAuth();
+  const { session, isLoading: isAuthLoading } = useAuth();
 
   const passwordResetPending = useAuthFlowStore(
     (state) => state.passwordResetPending,
@@ -25,22 +26,15 @@ export function RootNavigator() {
     return <AppLoadingScreen />;
   }
 
-  let initialRouteName: keyof RootStackParamList;
-  if (!isOnboardingCompleted) {
-    initialRouteName = "Onboarding";
-  } else if (!session || passwordResetPending) {
-    initialRouteName = "Auth";
-  } else {
-    initialRouteName = "Main";
-  }
-
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
-      <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-
-      <Stack.Screen name="Auth" component={AuthNavigator} />
-
-      <Stack.Screen name="Main" component={MainNavigator} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {!isOnboardingCompleted ? (
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+      ) : !session || passwordResetPending ? (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+      ) : (
+        <Stack.Screen name="Main" component={MainNavigator} />
+      )}
     </Stack.Navigator>
   );
 }

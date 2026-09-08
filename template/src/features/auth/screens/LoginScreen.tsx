@@ -29,7 +29,6 @@ import {
 } from "@/features/auth/schemas/authSchemas";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 
-
 import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
@@ -42,6 +41,8 @@ export function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
 
   const { mutateAsync: login, isPending } = useLogin();
+
+  throw new Error("Test ErrorBoundary");
 
   const {
     control,

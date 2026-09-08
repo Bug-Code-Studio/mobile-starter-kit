@@ -6,15 +6,18 @@ import "./global.css";
 
 import { RootNavigator } from "@/app/navigation/RootNavigator";
 import { AppProviders } from "@/providers/AppProviders";
+import { ErrorBoundary } from "@/components/app/ErrorBoundary";
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppProviders>
-        <NavigationContainer linking={linking}>
-          <RootNavigator />
-        </NavigationContainer>
-      </AppProviders>
+      <ErrorBoundary>
+        <AppProviders>
+          <NavigationContainer linking={linking}>
+            <RootNavigator />
+          </NavigationContainer>
+        </AppProviders>
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

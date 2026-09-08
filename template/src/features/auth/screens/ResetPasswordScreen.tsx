@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '@/app/navigation/types';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -21,7 +23,9 @@ import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 
-export function ResetPasswordScreen() {
+type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
+
+export function ResetPasswordScreen({ navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -55,6 +59,8 @@ export function ResetPasswordScreen() {
       await resetPassword(values.password);
 
       setPasswordResetPending(false);
+
+      navigation.navigate('Login');
     } catch (err) {
       setError(
         err instanceof Error

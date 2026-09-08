@@ -1,19 +1,25 @@
 import { supabase } from '@/lib/supabase/client';
+import { normalizeError } from '@/lib/errors';
 
 export async function signInWithEmail(
   email: string,
   password: string,
 ) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } =
+      await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw normalizeError(error);
+    }
+
+    return data;
+  } catch (error) {
+    throw normalizeError(error);
   }
-
-  return data;
 }
 
 export async function signUpWithEmail(
@@ -22,30 +28,43 @@ export async function signUpWithEmail(
   email: string,
   password: string,
 ) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-        surname,
-      },
-    },
-  });
+  try {
+    const { data, error } =
+      await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            surname,
+          },
+        },
+      });
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw normalizeError(error);
+    }
+
+    return data;
+  } catch (error) {
+    throw normalizeError(error);
   }
-
-  return data;
 }
 
-export async function sendPasswordResetOtp(email: string) {
-  const { error } =
-    await supabase.auth.resetPasswordForEmail(email);
+export async function sendPasswordResetOtp(
+  email: string,
+) {
+  try {
+    const { error } =
+      await supabase.auth.resetPasswordForEmail(
+        email,
+      );
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw normalizeError(error);
+    }
+  } catch (error) {
+    throw normalizeError(error);
   }
 }
 
@@ -54,60 +73,94 @@ export async function verifyEmailOtp(
   token: string,
   purpose: 'signup' | 'password-reset',
 ) {
-  const type = purpose === 'signup' ? 'email' : 'recovery';
+  try {
+    const type =
+      purpose === 'signup'
+        ? 'email'
+        : 'recovery';
 
-  const { data, error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type,
-  });
+    const { data, error } =
+      await supabase.auth.verifyOtp({
+        email,
+        token,
+        type,
+      });
 
-  if (error) {
-    throw error;
-  }
+    if (error) {
+      throw normalizeError(error);
+    }
 
-  return data;
-}
-
-export async function resendSignupOtp(email: string) {
-  const { data, error } = await supabase.auth.resend({
-    type: 'signup',
-    email,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-}
-
-export async function resendPasswordResetOtp(email: string) {
-  const { error } =
-    await supabase.auth.resetPasswordForEmail(email);
-
-  if (error) {
-    throw error;
+    return data;
+  } catch (error) {
+    throw normalizeError(error);
   }
 }
 
-export async function updatePassword(password: string) {
-  const { data, error } =
-    await supabase.auth.updateUser({
-      password,
-    });
+export async function resendSignupOtp(
+  email: string,
+) {
+  try {
+    const { data, error } =
+      await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw normalizeError(error);
+    }
+
+    return data;
+  } catch (error) {
+    throw normalizeError(error);
   }
+}
 
-  return data;
+export async function resendPasswordResetOtp(
+  email: string,
+) {
+  try {
+    const { error } =
+      await supabase.auth.resetPasswordForEmail(
+        email,
+      );
+
+    if (error) {
+      throw normalizeError(error);
+    }
+  } catch (error) {
+    throw normalizeError(error);
+  }
+}
+
+export async function updatePassword(
+  password: string,
+) {
+  try {
+    const { data, error } =
+      await supabase.auth.updateUser({
+        password,
+      });
+
+    if (error) {
+      throw normalizeError(error);
+    }
+
+    return data;
+  } catch (error) {
+    throw normalizeError(error);
+  }
 }
 
 export async function signOut() {
-  const { error } = await supabase.auth.signOut();
+  try {
+    const { error } =
+      await supabase.auth.signOut();
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw normalizeError(error);
+    }
+  } catch (error) {
+    throw normalizeError(error);
   }
 }

@@ -1,53 +1,44 @@
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AppScreen } from '@/components/app/AppScreen';
-import { AuthHeader } from '@/features/auth/components/AuthHeader';
-import { Input, InputField } from '@/components/ui/input';
-import {
-  Button,
-  ButtonSpinner,
-  ButtonText,
-} from '@/components/ui/button';
-import { AlertCircleIcon, MailIcon } from '@/components/ui/icon';
+import { AppScreen } from "@/components/app/AppScreen";
+import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import { Input, InputField } from "@/components/ui/input";
+import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
+import { AlertCircleIcon, MailIcon } from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
   FormControlErrorIcon,
   FormControlErrorText,
-} from '@/components/ui/form-control';
-import type { AuthStackParamList } from '@/app/navigation/types';
-import { OtpFormValues, otpSchema } from '@/features/auth/schemas/authSchemas';
-import { useVerifyOtp } from '@/features/auth/hooks/useVerifyOtp';
-import { resendSignupOtp, resendPasswordResetOtp } from '@/features/auth/services/authService';
-import { useAuthFlowStore } from '@/stores/authFlowStore';
-import { Box } from '@/components/ui/box';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+} from "@/components/ui/form-control";
+import type { AuthStackParamList } from "@/app/navigation/types";
+import { OtpFormValues, otpSchema } from "@/features/auth/schemas/authSchemas";
+import { useVerifyOtp } from "@/features/auth/hooks/useVerifyOtp";
+import {
+  resendSignupOtp,
+  resendPasswordResetOtp,
+} from "@/features/auth/services/authService";
+import { useAuthFlowStore } from "@/stores/authFlowStore";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
 
-type Props = NativeStackScreenProps<
-  AuthStackParamList,
-  'AccountVerify'
->;
+type Props = NativeStackScreenProps<AuthStackParamList, "AccountVerify">;
 
-export function AccountVerifyScreen({
-  route,
-  navigation,
-}: Props) {
+export function AccountVerifyScreen({ route, navigation }: Props) {
   const { email, purpose } = route.params;
 
   const [error, setError] = useState<string | null>(null);
   const [resent, setResent] = useState(false);
 
-  const { mutateAsync: verifyOtp, isPending } =
-    useVerifyOtp();
+  const { mutateAsync: verifyOtp, isPending } = useVerifyOtp();
 
-  const setPasswordResetPending =
-    useAuthFlowStore(
-      (state) => state.setPasswordResetPending,
-    );
+  const setPasswordResetPending = useAuthFlowStore(
+    (state) => state.setPasswordResetPending,
+  );
 
   const {
     control,
@@ -56,7 +47,7 @@ export function AccountVerifyScreen({
   } = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
-      token: '',
+      token: "",
     },
   });
 
@@ -64,7 +55,7 @@ export function AccountVerifyScreen({
     try {
       setError(null);
 
-      if (purpose === 'password-reset') {
+      if (purpose === "password-reset") {
         setPasswordResetPending(true);
       }
 
@@ -74,16 +65,14 @@ export function AccountVerifyScreen({
         purpose,
       });
 
-      if (purpose === 'password-reset') {
-        navigation.navigate('ResetPassword');
+      if (purpose === "password-reset") {
+        navigation.navigate("ResetPassword");
       }
     } catch (err) {
       setPasswordResetPending(false);
 
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Invalid verification code.',
+        err instanceof Error ? err.message : "Invalid verification code.",
       );
     }
   };
@@ -93,7 +82,7 @@ export function AccountVerifyScreen({
       setError(null);
       setResent(false);
 
-      if (purpose === 'signup') {
+      if (purpose === "signup") {
         await resendSignupOtp(email);
       } else {
         await resendPasswordResetOtp(email);
@@ -101,11 +90,7 @@ export function AccountVerifyScreen({
 
       setResent(true);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to resend code.',
-      );
+      setError(err instanceof Error ? err.message : "Unable to resend code.");
     }
   };
 
@@ -118,9 +103,7 @@ export function AccountVerifyScreen({
       />
 
       <Box className="mt-6 flex-row items-center justify-center gap-2 rounded-xl bg-muted px-4 py-3">
-        <Text className="text-sm font-medium text-foreground">
-          {email}
-        </Text>
+        <Text className="text-sm font-medium text-foreground">{email}</Text>
       </Box>
 
       <Box className="mt-8">
@@ -131,11 +114,10 @@ export function AccountVerifyScreen({
             <FormControl isInvalid={!!errors.token}>
               <Input
                 className={`h-12 rounded-xl px-3.5 ${
-                  errors.token ? 'border-destructive' : ''
+                  errors.token ? "border-destructive" : ""
                 }`}
               >
                 <InputField
-                  className="text-center text-2xl tracking-[8px]"
                   placeholder="000000"
                   keyboardType="number-pad"
                   maxLength={6}
@@ -158,9 +140,7 @@ export function AccountVerifyScreen({
 
       {error && (
         <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-          <Text className="text-sm text-destructive">
-            {error}
-          </Text>
+          <Text className="text-sm text-destructive">{error}</Text>
         </Box>
       )}
 
@@ -177,24 +157,18 @@ export function AccountVerifyScreen({
         onPress={handleSubmit(onSubmit)}
         disabled={isPending}
       >
-        {isPending && (
-          <ButtonSpinner className="text-primary-foreground" />
-        )}
+        {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
-        <ButtonText>
-          {isPending ? 'Verifying...' : 'Verify'}
-        </ButtonText>
+        <ButtonText>{isPending ? "Verifying..." : "Verify"}</ButtonText>
       </Button>
 
       <Box className="mt-8 flex-row justify-center">
         <Text className="text-sm text-muted-foreground">
-          Didn&apos;t receive the code?{' '}
+          Didn&apos;t receive the code?{" "}
         </Text>
 
         <Pressable onPress={handleResend}>
-          <Text className="text-sm font-semibold text-foreground">
-            Resend
-          </Text>
+          <Text className="text-sm font-semibold text-foreground">Resend</Text>
         </Pressable>
       </Box>
     </AppScreen>
