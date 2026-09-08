@@ -16,16 +16,35 @@ import {
   resolvePackageManager,
 } from './utils/package-manager.js';
 
-import { parseFlags } from './utils/flags.js';
+import { parseArgs } from './utils/args.js';
 
 import { error } from './utils/logger.js';
 
 async function main() {
   const args = process.argv.slice(2);
 
-  const appName = args.find(
-    (arg) => !arg.startsWith('--'),
-  );
+  let parsedArgs;
+
+  try {
+    parsedArgs = parseArgs(args);
+  } catch (error) {
+    console.error(
+      `\n✖ ${
+        error instanceof Error
+          ? error.message
+          : 'Invalid arguments.'
+      }`,
+    );
+
+    process.exit(1);
+  }
+
+  const {
+    appName,
+    packageManager: selectedPackageManager,
+    noInstall,
+    noGit,
+  } = parsedArgs;
 
   const validationError =
     validateProjectName(appName);
@@ -43,25 +62,9 @@ async function main() {
   const projectNames =
     createProjectNames(appName!);
 
-  let cliOptions;
-
-  try {
-    cliOptions = parseFlags(args);
-  } catch (error) {
-    console.error(
-      `\n✖ ${
-        error instanceof Error
-          ? error.message
-          : 'Invalid options.'
-      }`,
-    );
-
-    process.exit(1);
-  }
-
   const packageManager =
     resolvePackageManager(
-      cliOptions.packageManager,
+      selectedPackageManager,
     );
 
   const cliRoot = path.resolve(
@@ -107,8 +110,8 @@ async function main() {
     targetPath,
     packageManager,
     {
-      install: !cliOptions.noInstall,
-      git: !cliOptions.noGit,
+      install: !noInstall,
+      git: !noGit,
     },
   );
 }
