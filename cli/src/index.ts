@@ -1,85 +1,61 @@
 #!/usr/bin/env node
 
-import path from 'node:path';
-import process from 'node:process';
+import path from "node:path";
+import process from "node:process";
 
-import fs from 'fs-extra';
+import fs from "fs-extra";
 
-import { createProject } from './commands/create.js';
+import { createProject } from "./commands/create.js";
 
-import {
-  createProjectNames,
-  validateProjectName,
-} from './utils/names.js';
+import { createProjectNames, validateProjectName } from "./utils/names.js";
+import { resolvePackageManager } from "./utils/project-manager.js";
 
 async function main() {
-  const appName = process.argv[2];
+  const args = process.argv.slice(2);
 
-  const validationError =
-    validateProjectName(appName);
+  const appName = args.find((arg) => !arg.startsWith("--"));
+
+  const validationError = validateProjectName(appName);
 
   if (validationError) {
-    console.error(
-      `\n✖ ${validationError}\n`,
-    );
+    console.error(`\n✖ ${validationError}\n`);
 
-    console.error(
-      'Usage: create-app <app-name>',
-    );
+    console.error("Usage: create-app <app-name>");
 
     process.exit(1);
   }
 
-  const projectNames =
-    createProjectNames(appName!);
+  const projectNames = createProjectNames(appName!);
 
-  const cliRoot = path.resolve(
-    import.meta.dirname,
-    '..',
-  );
+  const packageManager = resolvePackageManager(args);
 
-  const starterKitRoot = path.resolve(
-    cliRoot,
-    '..',
-  );
+  const cliRoot = path.resolve(import.meta.dirname, "..");
 
-  const templatePath = path.join(
-    starterKitRoot,
-    'template',
-  );
+  const starterKitRoot = path.resolve(cliRoot, "..");
 
-  const targetPath = path.resolve(
-    process.cwd(),
-    appName!,
-  );
+  const templatePath = path.join(starterKitRoot, "template");
+
+  const targetPath = path.resolve(process.cwd(), appName!);
 
   if (!(await fs.pathExists(templatePath))) {
-    console.error(
-      '\n✖ Template directory not found.\n',
-    );
+    console.error("\n✖ Template directory not found.\n");
 
     process.exit(1);
   }
 
   if (await fs.pathExists(targetPath)) {
-    console.error(
-      `\n✖ Directory "${appName}" already exists.\n`,
-    );
+    console.error(`\n✖ Directory "${appName}" already exists.\n`);
 
     process.exit(1);
   }
 
-  await createProject(
-    projectNames,
-    templatePath,
-    targetPath,
-  );
+  console.log(`\nUsing ${packageManager}...\n`);
+
+  await createProject(projectNames, templatePath, targetPath);
 }
 
 main().catch((error) => {
-  console.error(
-    '\n✖ Failed to create project.',
-  );
+  console.error("\n✖ Failed to create project.");
 
   console.error(error);
 

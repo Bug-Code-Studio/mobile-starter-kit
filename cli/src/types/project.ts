@@ -4,3 +4,9 @@ export type ProjectNames = {
   packageName: string;
   scheme: string;
 };
+
+export type PackageManager =
+  | 'npm'
+  | 'yarn'
+  | 'pnpm'
+  | 'bun';
