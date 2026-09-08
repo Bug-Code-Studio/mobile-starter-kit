@@ -27,6 +27,7 @@
   "author": "BugCode Studio <info@bugcodestudio.com>",
   "license": "MIT",
   "dependencies": {
+    "@clack/prompts": "^1.8.0",
     "fs-extra": "^11.3.0"
   },
   "devDependencies": {

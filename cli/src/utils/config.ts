@@ -1,11 +1,11 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 
-import type { ProjectNames } from '../types/project.js';
+import type { ProjectConfig } from '../types/project.js';
 
 export async function configurePackageJson(
   targetPath: string,
-  names: ProjectNames,
+  config: ProjectConfig,
 ) {
   const packageJsonPath = path.join(
     targetPath,
@@ -16,7 +16,7 @@ export async function configurePackageJson(
     packageJsonPath,
   );
 
-  packageJson.name = names.packageName;
+  packageJson.name = config.packageName;
 
   await fs.writeJson(
     packageJsonPath,
@@ -27,39 +27,71 @@ export async function configurePackageJson(
   );
 }
 
-export async function configureAppJson(
+export async function configureAppConfig(
   targetPath: string,
-  names: ProjectNames,
+  config: ProjectConfig,
 ) {
-  const appJsonPath = path.join(
+  const appConfigPath = path.join(
     targetPath,
-    'app.json',
+    'app.config.ts',
   );
 
-  const appJson = await fs.readJson(
-    appJsonPath,
+  let appConfig = await fs.readFile(
+    appConfigPath,
+    'utf8',
   );
 
-  appJson.expo = {
-    ...appJson.expo,
-    name: names.displayName,
-    slug: names.slug,
-    scheme: names.scheme,
-    ios: {
-      ...appJson.expo?.ios,
-      bundleIdentifier: `com.bugcodestudio.${names.scheme}`,
-    },
-    android: {
-      ...appJson.expo?.android,
-      package: `com.bugcodestudio.${names.scheme}`,
-    },
-  };
+  appConfig = appConfig
+    .replace(
+      /name:\s*['"][^'"]*['"]/,
+      `name: '${config.displayName}'`,
+    )
+    .replace(
+      /slug:\s*['"][^'"]*['"]/,
+      `slug: '${config.slug}'`,
+    )
+    .replace(
+      /scheme:\s*['"][^'"]*['"]/,
+      `scheme: '${config.scheme}'`,
+    );
 
-  await fs.writeJson(
-    appJsonPath,
-    appJson,
-    {
-      spaces: 2,
-    },
+  if (
+    /bundleIdentifier:\s*['"][^'"]*['"]/.test(
+      appConfig,
+    )
+  ) {
+    appConfig = appConfig.replace(
+      /bundleIdentifier:\s*['"][^'"]*['"]/,
+      `bundleIdentifier: '${config.iosBundleIdentifier}'`,
+    );
+  } else {
+    appConfig = appConfig.replace(
+      /ios:\s*\{/,
+      `ios: {
+    bundleIdentifier: '${config.iosBundleIdentifier}',`,
+    );
+  }
+
+  if (
+    /package:\s*['"][^'"]*['"]/.test(
+      appConfig,
+    )
+  ) {
+    appConfig = appConfig.replace(
+      /package:\s*['"][^'"]*['"]/,
+      `package: '${config.androidPackage}'`,
+    );
+  } else {
+    appConfig = appConfig.replace(
+      /android:\s*\{/,
+      `android: {
+    package: '${config.androidPackage}',`,
+    );
+  }
+
+  await fs.writeFile(
+    appConfigPath,
+    appConfig,
+    'utf8',
   );
 }

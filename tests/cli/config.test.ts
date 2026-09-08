@@ -1,6 +1,6 @@
-import fs from 'fs-extra';
-import os from 'node:os';
-import path from 'node:path';
+import fs from "fs-extra";
+import os from "node:os";
+import path from "node:path";
 
 import {
   afterEach,
@@ -8,21 +8,21 @@ import {
   describe,
   expect,
   it,
-} from 'vitest';
+} from "vitest";
 
 import {
-  configureAppJson,
+  configureAppConfig,
   configurePackageJson,
-} from '../../cli/src/utils/config.js';
+} from "../../cli/src/utils/config.js";
 
-describe('config', () => {
+describe("config", () => {
   let tempDirectory: string;
 
   beforeEach(async () => {
     tempDirectory = await fs.mkdtemp(
       path.join(
         os.tmpdir(),
-        'create-app-config-test-',
+        "create-app-config-test-",
       ),
     );
   });
@@ -31,31 +31,32 @@ describe('config', () => {
     await fs.remove(tempDirectory);
   });
 
-  it('configures package.json', async () => {
+  it("configures package.json", async () => {
     const packageJsonPath = path.join(
       tempDirectory,
-      'package.json',
+      "package.json",
     );
 
-    await fs.writeJson(
-      packageJsonPath,
-      {
-        name: 'template-app',
-        version: '1.0.0',
-        private: true,
-        scripts: {
-          start: 'expo start',
-        },
+    await fs.writeJson(packageJsonPath, {
+      name: "template-app",
+      version: "1.0.0",
+      private: true,
+      scripts: {
+        start: "expo start",
       },
-    );
+    });
 
     await configurePackageJson(
       tempDirectory,
       {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
+        displayName: "My App",
+        slug: "my-app",
+        scheme: "myapp",
+        packageName: "my-app",
+        androidPackage:
+          "com.bugcodestudio.myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
       },
     );
 
@@ -64,177 +65,202 @@ describe('config', () => {
         packageJsonPath,
       );
 
-    expect(
-      packageJson.name,
-    ).toBe('my-app');
+    expect(packageJson.name).toBe(
+      "my-app",
+    );
 
-    expect(
-      packageJson.version,
-    ).toBe('1.0.0');
+    expect(packageJson.version).toBe(
+      "1.0.0",
+    );
 
-    expect(
-      packageJson.private,
-    ).toBe(true);
+    expect(packageJson.private).toBe(
+      true,
+    );
 
     expect(
       packageJson.scripts.start,
-    ).toBe('expo start');
+    ).toBe("expo start");
   });
 
-  it('configures app.json', async () => {
-    const appJsonPath = path.join(
+  it("configures app.config.ts", async () => {
+    const appConfigPath = path.join(
       tempDirectory,
-      'app.json',
+      "app.config.ts",
     );
 
-    await fs.writeJson(
-      appJsonPath,
+    await fs.writeFile(
+      appConfigPath,
+      `import type { ExpoConfig } from 'expo/config';
+
+const config: ExpoConfig = {
+  name: 'Template App',
+  slug: 'template-app',
+  scheme: 'template',
+  version: '1.0.0',
+  ios: {
+    bundleIdentifier:
+      'com.bugcodestudio.template',
+  },
+  android: {
+    package:
+      'com.bugcodestudio.template',
+  },
+};
+
+export default config;
+`,
+      "utf8",
+    );
+
+    await configureAppConfig(
+      tempDirectory,
       {
-        expo: {
-          name: 'Template App',
-          slug: 'template-app',
-          version: '1.0.0',
-        },
+        displayName: "My App",
+        slug: "my-app",
+        scheme: "myapp",
+        packageName: "my-app",
+        androidPackage:
+          "com.bugcodestudio.myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
       },
     );
 
-    await configureAppJson(
-      tempDirectory,
-      {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
-      },
-    );
-
-    const appJson =
-      await fs.readJson(
-        appJsonPath,
+    const appConfig =
+      await fs.readFile(
+        appConfigPath,
+        "utf8",
       );
 
-    expect(
-      appJson.expo.name,
-    ).toBe('My App');
-
-    expect(
-      appJson.expo.slug,
-    ).toBe('my-app');
-
-    expect(
-      appJson.expo.scheme,
-    ).toBe('myapp');
-
-    expect(
-      appJson.expo.version,
-    ).toBe('1.0.0');
-
-    expect(
-      appJson.expo.ios.bundleIdentifier,
-    ).toBe(
-      'com.bugcodestudio.myapp',
+    expect(appConfig).toContain(
+      "name: 'My App'",
     );
 
-    expect(
-      appJson.expo.android.package,
-    ).toBe(
-      'com.bugcodestudio.myapp',
-    );
-  });
-
-  it('preserves existing ios configuration', async () => {
-    const appJsonPath = path.join(
-      tempDirectory,
-      'app.json',
+    expect(appConfig).toContain(
+      "slug: 'my-app'",
     );
 
-    await fs.writeJson(
-      appJsonPath,
-      {
-        expo: {
-          name: 'Template App',
-          slug: 'template-app',
-          ios: {
-            supportsTablet: true,
-          },
-        },
-      },
+    expect(appConfig).toContain(
+      "scheme: 'myapp'",
     );
 
-    await configureAppJson(
-      tempDirectory,
-      {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
-      },
+    expect(appConfig).toContain(
+      "version: '1.0.0'",
     );
 
-    const appJson =
-      await fs.readJson(
-        appJsonPath,
-      );
+    expect(appConfig).toContain(
+      "bundleIdentifier: 'com.bugcodestudio.myapp'",
+    );
 
-    expect(
-      appJson.expo.ios.supportsTablet,
-    ).toBe(true);
-
-    expect(
-      appJson.expo.ios.bundleIdentifier,
-    ).toBe(
-      'com.bugcodestudio.myapp',
+    expect(appConfig).toContain(
+      "package: 'com.bugcodestudio.myapp'",
     );
   });
 
-  it('preserves existing android configuration', async () => {
-    const appJsonPath = path.join(
+  it("adds missing ios bundle identifier", async () => {
+    const appConfigPath = path.join(
       tempDirectory,
-      'app.json',
+      "app.config.ts",
     );
 
-    await fs.writeJson(
-      appJsonPath,
+    await fs.writeFile(
+      appConfigPath,
+      `import type { ExpoConfig } from 'expo/config';
+
+const config: ExpoConfig = {
+  name: 'Template App',
+  slug: 'template-app',
+  ios: {
+    supportsTablet: true,
+  },
+};
+
+export default config;
+`,
+      "utf8",
+    );
+
+    await configureAppConfig(
+      tempDirectory,
       {
-        expo: {
-          name: 'Template App',
-          slug: 'template-app',
-          android: {
-            adaptiveIcon: {
-              foregroundImage:
-                './assets/icon.png',
-            },
-          },
-        },
+        displayName: "My App",
+        slug: "my-app",
+        scheme: "myapp",
+        packageName: "my-app",
+        androidPackage:
+          "com.bugcodestudio.myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
       },
     );
 
-    await configureAppJson(
-      tempDirectory,
-      {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
-      },
-    );
-
-    const appJson =
-      await fs.readJson(
-        appJsonPath,
+    const appConfig =
+      await fs.readFile(
+        appConfigPath,
+        "utf8",
       );
 
-    expect(
-      appJson.expo.android.adaptiveIcon
-        .foregroundImage,
-    ).toBe(
-      './assets/icon.png',
+    expect(appConfig).toContain(
+      "supportsTablet: true",
     );
 
-    expect(
-      appJson.expo.android.package,
-    ).toBe(
-      'com.bugcodestudio.myapp',
+    expect(appConfig).toContain(
+      "bundleIdentifier: 'com.bugcodestudio.myapp'",
+    );
+  });
+
+  it("adds missing android package", async () => {
+    const appConfigPath = path.join(
+      tempDirectory,
+      "app.config.ts",
+    );
+
+    await fs.writeFile(
+      appConfigPath,
+      `import type { ExpoConfig } from 'expo/config';
+
+const config: ExpoConfig = {
+  name: 'Template App',
+  slug: 'template-app',
+  android: {
+    adaptiveIcon: {
+      foregroundImage:
+        './assets/icon.png',
+    },
+  },
+};
+
+export default config;
+`,
+      "utf8",
+    );
+
+    await configureAppConfig(
+      tempDirectory,
+      {
+        displayName: "My App",
+        slug: "my-app",
+        scheme: "myapp",
+        packageName: "my-app",
+        androidPackage:
+          "com.bugcodestudio.myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+      },
+    );
+
+    const appConfig =
+      await fs.readFile(
+        appConfigPath,
+        "utf8",
+    );
+
+    expect(appConfig).toContain(
+      "foregroundImage:\n        './assets/icon.png'",
+    );
+
+    expect(appConfig).toContain(
+      "package: 'com.bugcodestudio.myapp'",
     );
   });
 });

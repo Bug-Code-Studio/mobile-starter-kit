@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 
 import {
-  configureAppJson,
+  configureAppConfig,
   configurePackageJson,
 } from '../utils/config.js';
 
@@ -21,7 +21,7 @@ import {
 
 import type {
   PackageManager,
-  ProjectNames,
+  ProjectConfig,
 } from '../types/project.js';
 
 type CreateProjectOptions = {
@@ -30,7 +30,7 @@ type CreateProjectOptions = {
 };
 
 export async function createProject(
-  names: ProjectNames,
+  names: ProjectConfig,
   templatePath: string,
   targetPath: string,
   packageManager: PackageManager,
@@ -61,7 +61,7 @@ export async function createProject(
 
     step('Configuring Expo');
 
-    await configureAppJson(
+    await configureAppConfig(
       targetPath,
       names,
     );

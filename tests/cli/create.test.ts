@@ -1,6 +1,6 @@
-import fs from 'fs-extra';
-import os from 'node:os';
-import path from 'node:path';
+import fs from "fs-extra";
+import os from "node:os";
+import path from "node:path";
 
 import {
   afterEach,
@@ -8,13 +8,13 @@ import {
   describe,
   expect,
   it,
-} from 'vitest';
+} from "vitest";
 
-import { createProject } from '../../cli/src/commands/create.js';
+import { createProject } from "../../cli/src/commands/create.js";
 
 const tempDirectories: string[] = [];
 
-describe('createProject', () => {
+describe("createProject", () => {
   let tempDirectory: string;
   let targetPath: string;
   let templatePath: string;
@@ -23,7 +23,7 @@ describe('createProject', () => {
     tempDirectory = await fs.mkdtemp(
       path.join(
         os.tmpdir(),
-        'create-app-test-',
+        "create-app-test-",
       ),
     );
 
@@ -31,12 +31,12 @@ describe('createProject', () => {
 
     templatePath = path.join(
       tempDirectory,
-      'template',
+      "template",
     );
 
     targetPath = path.join(
       tempDirectory,
-      'MyApp',
+      "MyApp",
     );
 
     await fs.ensureDir(templatePath);
@@ -44,25 +44,38 @@ describe('createProject', () => {
     await fs.writeJson(
       path.join(
         templatePath,
-        'package.json',
+        "package.json",
       ),
       {
-        name: 'template-app',
-        version: '1.0.0',
+        name: "template-app",
+        version: "1.0.0",
       },
     );
 
-    await fs.writeJson(
+    await fs.writeFile(
       path.join(
         templatePath,
-        'app.json',
+        "app.config.ts",
       ),
-      {
-        expo: {
-          name: 'Template',
-          slug: 'template',
-        },
-      },
+      `import type { ExpoConfig } from 'expo/config';
+
+const config: ExpoConfig = {
+  name: 'Template',
+  slug: 'template',
+  scheme: 'template',
+  ios: {
+    bundleIdentifier:
+      'com.bugcodestudio.template',
+  },
+  android: {
+    package:
+      'com.bugcodestudio.template',
+  },
+};
+
+export default config;
+`,
+      "utf8",
     );
   });
 
@@ -76,17 +89,21 @@ describe('createProject', () => {
     tempDirectories.length = 0;
   });
 
-  it('creates a project from the template', async () => {
+  it("creates a project from the template", async () => {
     await createProject(
       {
-        displayName: 'MyApp',
-        slug: 'myapp',
-        packageName: 'myapp',
-        scheme: 'myapp',
+        displayName: "MyApp",
+        slug: "myapp",
+        packageName: "myapp",
+        scheme: "myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+        androidPackage:
+          "com.bugcodestudio.myapp",
       },
       templatePath,
       targetPath,
-      'npm',
+      "npm",
       {
         install: false,
         git: false,
@@ -101,7 +118,7 @@ describe('createProject', () => {
       await fs.pathExists(
         path.join(
           targetPath,
-          'package.json',
+          "package.json",
         ),
       ),
     ).toBe(true);
@@ -110,23 +127,27 @@ describe('createProject', () => {
       await fs.pathExists(
         path.join(
           targetPath,
-          'app.json',
+          "app.config.ts",
         ),
       ),
     ).toBe(true);
   });
 
-  it('configures package.json', async () => {
+  it("configures package.json", async () => {
     await createProject(
       {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
+        displayName: "My App",
+        slug: "my-app",
+        packageName: "my-app",
+        scheme: "myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+        androidPackage:
+          "com.bugcodestudio.myapp",
       },
       templatePath,
       targetPath,
-      'npm',
+      "npm",
       {
         install: false,
         git: false,
@@ -137,76 +158,81 @@ describe('createProject', () => {
       await fs.readJson(
         path.join(
           targetPath,
-          'package.json',
+          "package.json",
         ),
       );
 
-    expect(
-      packageJson.name,
-    ).toBe('my-app');
+    expect(packageJson.name).toBe(
+      "my-app",
+    );
   });
 
-  it('configures app.json', async () => {
+  it("configures app.config.ts", async () => {
     await createProject(
       {
-        displayName: 'My App',
-        slug: 'my-app',
-        packageName: 'my-app',
-        scheme: 'myapp',
+        displayName: "My App",
+        slug: "my-app",
+        packageName: "my-app",
+        scheme: "myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+        androidPackage:
+          "com.bugcodestudio.myapp",
       },
       templatePath,
       targetPath,
-      'npm',
+      "npm",
       {
         install: false,
         git: false,
       },
     );
 
-    const appJson =
-      await fs.readJson(
+    const appConfig =
+      await fs.readFile(
         path.join(
           targetPath,
-          'app.json',
+          "app.config.ts",
         ),
+        "utf8",
       );
 
-    expect(
-      appJson.expo.name,
-    ).toBe('My App');
-
-    expect(
-      appJson.expo.slug,
-    ).toBe('my-app');
-
-    expect(
-      appJson.expo.scheme,
-    ).toBe('myapp');
-
-    expect(
-      appJson.expo.ios.bundleIdentifier,
-    ).toBe(
-      'com.bugcodestudio.myapp',
+    expect(appConfig).toContain(
+      "name: 'My App'",
     );
 
-    expect(
-      appJson.expo.android.package,
-    ).toBe(
-      'com.bugcodestudio.myapp',
+    expect(appConfig).toContain(
+      "slug: 'my-app'",
+    );
+
+    expect(appConfig).toContain(
+      "scheme: 'myapp'",
+    );
+
+    expect(appConfig).toContain(
+      "bundleIdentifier: 'com.bugcodestudio.myapp'",
+    );
+
+    expect(appConfig).toContain(
+      "package: 'com.bugcodestudio.myapp'",
     );
   });
 
-  it('does not install dependencies when install is disabled', async () => {
+  it("does not install dependencies when install is disabled", async () => {
     await createProject(
       {
-        displayName: 'MyApp',
-        slug: 'myapp',
-        packageName: 'myapp',
-        scheme: 'myapp',
+        displayName: "MyApp",
+        slug: "myapp",
+        packageName: "myapp",
+        scheme: "myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+        androidPackage:
+          "com.bugcodestudio.myapp",
       },
       templatePath,
       targetPath,
-      'npm',
+      "npm",
       {
         install: false,
         git: false,
@@ -217,23 +243,27 @@ describe('createProject', () => {
       await fs.pathExists(
         path.join(
           targetPath,
-          'node_modules',
+          "node_modules",
         ),
       ),
     ).toBe(false);
   });
 
-  it('does not initialize git when git is disabled', async () => {
+  it("does not initialize git when git is disabled", async () => {
     await createProject(
       {
-        displayName: 'MyApp',
-        slug: 'myapp',
-        packageName: 'myapp',
-        scheme: 'myapp',
+        displayName: "MyApp",
+        slug: "myapp",
+        packageName: "myapp",
+        scheme: "myapp",
+        iosBundleIdentifier:
+          "com.bugcodestudio.myapp",
+        androidPackage:
+          "com.bugcodestudio.myapp",
       },
       templatePath,
       targetPath,
-      'npm',
+      "npm",
       {
         install: false,
         git: false,
@@ -244,7 +274,7 @@ describe('createProject', () => {
       await fs.pathExists(
         path.join(
           targetPath,
-          '.git',
+          ".git",
         ),
       ),
     ).toBe(false);
