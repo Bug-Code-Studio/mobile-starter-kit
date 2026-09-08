@@ -1,6 +1,6 @@
 {
   "name": "@bugcodestudio/create-app",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Create a React Native Expo application from the BugCode Studio starter kit.",
   "type": "module",
   "bin": {
