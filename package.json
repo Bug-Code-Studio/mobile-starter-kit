@@ -6,7 +6,10 @@
   ],
   "scripts": {
     "cli:build": "npm --workspace cli run build",
-    "cli:dev": "npm --workspace cli run dev",
-    "cli:test": "npm --workspace cli run test"
+    "cli:dev": "npm --workspace cli run dev --",
+    "cli:test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.0"
   }
 }
