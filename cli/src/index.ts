@@ -128,10 +128,12 @@ async function main() {
 
 main().catch((error) => {
   console.error(
-    '\n✖ Failed to create project.',
+    `\n✖ ${
+      error instanceof Error
+        ? error.message
+        : 'An unexpected error occurred.'
+    }`,
   );
-
-  console.error(error);
 
   process.exit(1);
 });

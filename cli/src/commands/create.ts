@@ -1,3 +1,5 @@
+import fs from 'fs-extra';
+
 import {
   configureAppJson,
   configurePackageJson,
@@ -38,76 +40,104 @@ export async function createProject(
     `\nCreating ${names.displayName}...\n`,
   );
 
-  step('Copying template');
+  try {
+    step('Copying template');
 
-  await copyTemplate(
-    templatePath,
-    targetPath,
-  );
-
-  success('Template copied');
-
-  step('Configuring package.json');
-
-  await configurePackageJson(
-    targetPath,
-    names,
-  );
-
-  success('package.json configured');
-
-  step('Configuring Expo');
-
-  await configureAppJson(
-    targetPath,
-    names,
-  );
-
-  success('Expo configured');
-
-  if (options.install) {
-    step(
-      `Installing dependencies with ${packageManager}`,
-    );
-
-    await installDependencies(
-      packageManager,
+    await copyTemplate(
+      templatePath,
       targetPath,
     );
 
-    success('Dependencies installed');
-  } else {
-    info(
-      'Skipping dependency installation (--no-install)',
-    );
-  }
+    success('Template copied');
 
-  if (options.git) {
-    step('Initializing Git');
+    step('Configuring package.json');
 
-    await initializeGit(
+    await configurePackageJson(
       targetPath,
+      names,
     );
 
-    success('Git initialized');
-  } else {
-    info(
-      'Skipping Git initialization (--no-git)',
+    success('package.json configured');
+
+    step('Configuring Expo');
+
+    await configureAppJson(
+      targetPath,
+      names,
     );
+
+    success('Expo configured');
+
+    if (options.install) {
+      step(
+        `Installing dependencies with ${packageManager}`,
+      );
+
+      await installDependencies(
+        packageManager,
+        targetPath,
+      );
+
+      success('Dependencies installed');
+    } else {
+      info(
+        'Skipping dependency installation (--no-install)',
+      );
+    }
+
+    if (options.git) {
+      step('Initializing Git');
+
+      await initializeGit(
+        targetPath,
+      );
+
+      success('Git initialized');
+    } else {
+      info(
+        'Skipping Git initialization (--no-git)',
+      );
+    }
+
+    divider();
+
+    success(
+      `${names.displayName} created successfully!`,
+    );
+
+    blank();
+
+    console.log('Next steps:\n');
+
+    console.log(`  cd ${names.displayName}`);
+    console.log('  npx expo start');
+
+    divider();
+  } catch (error) {
+    console.error(
+      '\n✖ Project creation failed.',
+    );
+
+    if (await fs.pathExists(targetPath)) {
+      console.log(
+        'Cleaning up incomplete project...',
+      );
+
+      try {
+        await fs.remove(targetPath);
+
+        success(
+          'Incomplete project removed',
+        );
+      } catch (cleanupError) {
+        console.error(
+          '\n✖ Failed to clean up incomplete project.',
+        );
+
+        console.error(cleanupError);
+      }
+    }
+
+    throw error;
   }
-
-  divider();
-
-  success(
-    `${names.displayName} created successfully!`,
-  );
-
-  blank();
-
-  console.log('Next steps:\n');
-
-  console.log(`  cd ${names.displayName}`);
-  console.log('  npx expo start');
-
-  divider();
 }
