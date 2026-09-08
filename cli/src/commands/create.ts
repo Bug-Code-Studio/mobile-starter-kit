@@ -1,57 +1,20 @@
-import path from 'node:path';
-import fs from 'fs-extra';
+import {
+  configureAppJson,
+  configurePackageJson,
+} from '../utils/config.js';
 
-import { toSlug } from '../utils/names.js';
 import { copyTemplate } from '../utils/template.js';
 
-async function updatePackageJson(
-  targetPath: string,
-  appName: string,
-) {
-  const packageJsonPath = path.join(
-    targetPath,
-    'package.json',
-  );
-
-  const packageJson = await fs.readJson(packageJsonPath);
-
-  packageJson.name = toSlug(appName);
-
-  await fs.writeJson(packageJsonPath, packageJson, {
-    spaces: 2,
-  });
-}
-
-async function updateAppJson(
-  targetPath: string,
-  appName: string,
-) {
-  const appJsonPath = path.join(
-    targetPath,
-    'app.json',
-  );
-
-  const appJson = await fs.readJson(appJsonPath);
-  const slug = toSlug(appName);
-
-  appJson.expo = {
-    ...appJson.expo,
-    name: appName,
-    slug,
-    scheme: slug,
-  };
-
-  await fs.writeJson(appJsonPath, appJson, {
-    spaces: 2,
-  });
-}
+import type { ProjectNames } from '../types/project.js';
 
 export async function createProject(
-  appName: string,
+  names: ProjectNames,
   templatePath: string,
   targetPath: string,
 ) {
-  console.log(`\nCreating ${appName}...\n`);
+  console.log(
+    `\nCreating ${names.displayName}...\n`,
+  );
 
   console.log('✔ Copying template...');
 
@@ -60,21 +23,23 @@ export async function createProject(
     targetPath,
   );
 
-  console.log('✔ Configuring package.json...');
+  console.log(
+    '✔ Configuring package.json...',
+  );
 
-  await updatePackageJson(
+  await configurePackageJson(
     targetPath,
-    appName,
+    names,
   );
 
   console.log('✔ Configuring Expo...');
 
-  await updateAppJson(
+  await configureAppJson(
     targetPath,
-    appName,
+    names,
   );
 
   console.log(
-    `\nSuccessfully created ${appName}!\n`,
+    `\nSuccessfully created ${names.displayName}!\n`,
   );
 }
