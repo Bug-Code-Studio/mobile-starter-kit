@@ -8,7 +8,10 @@ async function updatePackageJson(
   targetPath: string,
   appName: string,
 ) {
-  const packageJsonPath = path.join(targetPath, 'package.json');
+  const packageJsonPath = path.join(
+    targetPath,
+    'package.json',
+  );
 
   const packageJson = await fs.readJson(packageJsonPath);
 
@@ -23,7 +26,10 @@ async function updateAppJson(
   targetPath: string,
   appName: string,
 ) {
-  const appJsonPath = path.join(targetPath, 'app.json');
+  const appJsonPath = path.join(
+    targetPath,
+    'app.json',
+  );
 
   const appJson = await fs.readJson(appJsonPath);
   const slug = toSlug(appName);
@@ -49,15 +55,26 @@ export async function createProject(
 
   console.log('✔ Copying template...');
 
-  await copyTemplate(templatePath, targetPath);
+  await copyTemplate(
+    templatePath,
+    targetPath,
+  );
 
   console.log('✔ Configuring package.json...');
 
-  await updatePackageJson(targetPath, appName);
+  await updatePackageJson(
+    targetPath,
+    appName,
+  );
 
   console.log('✔ Configuring Expo...');
 
-  await updateAppJson(targetPath, appName);
+  await updateAppJson(
+    targetPath,
+    appName,
+  );
 
-  console.log(`\nSuccessfully created ${appName}!\n`);
+  console.log(
+    `\nSuccessfully created ${appName}!\n`,
+  );
 }
