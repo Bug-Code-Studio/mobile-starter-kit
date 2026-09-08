@@ -20,8 +20,18 @@ import { parseArgs } from './utils/args.js';
 
 import { error } from './utils/logger.js';
 
+import { showHelp } from './utils/help.js';
+
 async function main() {
   const args = process.argv.slice(2);
+
+  if (
+    args.includes('--help') ||
+    args.includes('-h')
+  ) {
+    showHelp();
+    return;
+  }
 
   let parsedArgs;
 
