@@ -1,4 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
+import { linking } from "@/app/navigation/linking";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import "./global.css";
@@ -10,7 +11,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppProviders>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <RootNavigator />
         </NavigationContainer>
       </AppProviders>
