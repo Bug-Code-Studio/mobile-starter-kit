@@ -5,12 +5,18 @@ import {
 
 import { copyTemplate } from '../utils/template.js';
 
-import type { ProjectNames } from '../types/project.js';
+import { installDependencies } from '../utils/install.js';
+
+import type {
+  PackageManager,
+  ProjectNames,
+} from '../types/project.js';
 
 export async function createProject(
   names: ProjectNames,
   templatePath: string,
   targetPath: string,
+  packageManager: PackageManager,
 ) {
   console.log(
     `\nCreating ${names.displayName}...\n`,
@@ -37,6 +43,15 @@ export async function createProject(
   await configureAppJson(
     targetPath,
     names,
+  );
+
+  console.log(
+    `\nInstalling dependencies with ${packageManager}...\n`,
+  );
+
+  await installDependencies(
+    packageManager,
+    targetPath,
   );
 
   console.log(

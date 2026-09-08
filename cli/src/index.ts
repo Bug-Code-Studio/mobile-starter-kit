@@ -8,7 +8,8 @@ import fs from "fs-extra";
 import { createProject } from "./commands/create.js";
 
 import { createProjectNames, validateProjectName } from "./utils/names.js";
-import { resolvePackageManager } from "./utils/project-manager.js";
+import { resolvePackageManager } from "./utils/package-manager.js";
+
 
 async function main() {
   const args = process.argv.slice(2);
@@ -35,7 +36,9 @@ async function main() {
 
   const templatePath = path.join(starterKitRoot, "template");
 
-  const targetPath = path.resolve(process.cwd(), appName!);
+  const currentDirectory = process.env.INIT_CWD ?? process.cwd();
+
+  const targetPath = path.resolve(currentDirectory, appName!);
 
   if (!(await fs.pathExists(templatePath))) {
     console.error("\n✖ Template directory not found.\n");
@@ -51,7 +54,7 @@ async function main() {
 
   console.log(`\nUsing ${packageManager}...\n`);
 
-  await createProject(projectNames, templatePath, targetPath);
+  await createProject(projectNames, templatePath, targetPath, packageManager);
 }
 
 main().catch((error) => {
