@@ -16,9 +16,9 @@ import {
   resolvePackageManager,
 } from './utils/package-manager.js';
 
-import {
-  error,
-} from './utils/logger.js';
+import { parseFlags } from './utils/flags.js';
+
+import { error } from './utils/logger.js';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -43,14 +43,26 @@ async function main() {
   const projectNames =
     createProjectNames(appName!);
 
+  let cliOptions;
+
+  try {
+    cliOptions = parseFlags(args);
+  } catch (error) {
+    console.error(
+      `\n✖ ${
+        error instanceof Error
+          ? error.message
+          : 'Invalid options.'
+      }`,
+    );
+
+    process.exit(1);
+  }
+
   const packageManager =
-    resolvePackageManager(args);
-
-  const noInstall =
-    args.includes('--no-install');
-
-  const noGit =
-    args.includes('--no-git');
+    resolvePackageManager(
+      cliOptions.packageManager,
+    );
 
   const cliRoot = path.resolve(
     import.meta.dirname,
@@ -95,8 +107,8 @@ async function main() {
     targetPath,
     packageManager,
     {
-      install: !noInstall,
-      git: !noGit,
+      install: !cliOptions.noInstall,
+      git: !cliOptions.noGit,
     },
   );
 }
