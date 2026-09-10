@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from "react-i18next";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AppScreen } from '@/components/app/AppScreen';
-import { AuthHeader } from '@/features/auth/components/AuthHeader';
-import { Input, InputField, InputIcon } from '@/components/ui/input';
+import { AppScreen } from "@/components/app/AppScreen";
+import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import { Input, InputField, InputIcon } from "@/components/ui/input";
+import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import {
-  Button,
-  ButtonSpinner,
-  ButtonText,
-} from '@/components/ui/button';
-import { AlertCircleIcon, HelpCircleIcon, MailIcon } from '@/components/ui/icon';
+  AlertCircleIcon,
+  HelpCircleIcon,
+  MailIcon,
+} from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -19,27 +19,24 @@ import {
   FormControlErrorText,
   FormControlLabel,
   FormControlLabelText,
-} from '@/components/ui/form-control';
+} from "@/components/ui/form-control";
 
-import type { AuthStackParamList } from '@/app/navigation/types';
-import { ForgotPasswordFormValues, forgotPasswordSchema } from '@/features/auth/schemas/authSchemas';
-import { useForgotPassword } from '@/features/auth/hooks/useForgotPassword';
-import { Box } from '@/components/ui/box';
-import { Pressable } from '@/components/ui/pressable';
-import { Text } from '@/components/ui/text';
+import type { AuthStackParamList } from "@/app/navigation/types";
+import {
+  ForgotPasswordFormValues,
+  forgotPasswordSchema,
+} from "@/features/auth/schemas/authSchemas";
+import { useForgotPassword } from "@/features/auth/hooks/useForgotPassword";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
 
-type Props = NativeStackScreenProps<
-  AuthStackParamList,
-  'ForgotPassword'
->;
+type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 
-export function ForgotPasswordScreen({
-  navigation,
-}: Props) {
-  const [error, setError] = useState<string | null>(null);
+export function ForgotPasswordScreen({ navigation }: Props) {
+  const { t } = useTranslation();
 
-  const { mutateAsync: sendResetOtp, isPending } =
-    useForgotPassword();
+  const { mutateAsync: sendResetOtp, isPending } = useForgotPassword();
 
   const {
     control,
@@ -48,28 +45,20 @@ export function ForgotPasswordScreen({
   } = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
   });
 
-  const onSubmit = async (
-    values: ForgotPasswordFormValues,
-  ) => {
+  const onSubmit = async (values: ForgotPasswordFormValues) => {
     try {
-      setError(null);
-
       await sendResetOtp(values.email);
 
-      navigation.navigate('AccountVerify', {
+      navigation.navigate("AccountVerify", {
         email: values.email,
-        purpose: 'password-reset',
+        purpose: "password-reset",
       });
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to send reset code.',
-      );
+      console.error(err);
     }
   };
 
@@ -77,8 +66,8 @@ export function ForgotPasswordScreen({
     <AppScreen className="justify-center px-6">
       <AuthHeader
         icon={HelpCircleIcon}
-        title="Forgot password?"
-        subtitle="Enter your email and we'll send you a verification code."
+        title={t("auth.forgotPassword.title")}
+        subtitle={t("auth.forgotPassword.subtitle")}
       />
 
       <Box className="mt-10">
@@ -89,19 +78,16 @@ export function ForgotPasswordScreen({
             <FormControl isInvalid={!!errors.email}>
               <FormControlLabel>
                 <FormControlLabelText className="text-sm">
-                  Email
+                  {t("auth.common.email")}
                 </FormControlLabelText>
               </FormControlLabel>
 
               <Input
                 className={`h-12 rounded-xl px-3.5 ${
-                  errors.email ? 'border-destructive' : ''
+                  errors.email ? "border-destructive" : ""
                 }`}
               >
-                <InputIcon
-                  as={MailIcon}
-                  className="text-muted-foreground"
-                />
+                <InputIcon as={MailIcon} className="text-muted-foreground" />
 
                 <InputField
                   placeholder="you@example.com"
@@ -117,7 +103,7 @@ export function ForgotPasswordScreen({
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.email?.message}
+                  {t(`auth.common.error.${errors.email?.message ?? ""}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -125,36 +111,26 @@ export function ForgotPasswordScreen({
         />
       </Box>
 
-      {error && (
-        <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-          <Text className="text-sm text-destructive">
-            {error}
-          </Text>
-        </Box>
-      )}
-
       <Button
         className="mt-6 h-12 w-full rounded-xl"
         onPress={handleSubmit(onSubmit)}
         disabled={isPending}
       >
-        {isPending && (
-          <ButtonSpinner className="text-primary-foreground" />
-        )}
+        {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
         <ButtonText>
-          {isPending ? 'Sending...' : 'Send Code'}
+          {isPending ? t("auth.forgotPassword.sending") : t("auth.forgotPassword.sendResetLink")}
         </ButtonText>
       </Button>
 
-      <Box className="mt-8 flex-row justify-center">
+      <Box className="mt-8 flex-row justify-center gap-2">
         <Text className="text-sm text-muted-foreground">
-          Remember your password?{' '}
+          {t("auth.forgotPassword.rememberPassword")}
         </Text>
 
         <Pressable onPress={() => navigation.goBack()}>
           <Text className="text-sm font-semibold text-foreground">
-            Sign in
+            {t("auth.forgotPassword.signIn")}
           </Text>
         </Pressable>
       </Box>

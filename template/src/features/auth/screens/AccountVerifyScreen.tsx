@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -27,12 +28,29 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "AccountVerify">;
+type FocusableInput = { focus: () => void };
 
 export function AccountVerifyScreen({ route, navigation }: Props) {
   const { email, purpose } = route.params;
 
-  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
+
   const [resent, setResent] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const inputRefs = useRef<Array<FocusableInput | null>>([]);
+
+  useEffect(() => {
+    if (resendCooldown === 0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setResendCooldown((current) => Math.max(current - 1, 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
   const { mutateAsync: verifyOtp, isPending } = useVerifyOtp();
 
@@ -53,8 +71,6 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
 
   const onSubmit = async (values: OtpFormValues) => {
     try {
-      setError(null);
-
       if (purpose === "password-reset") {
         setPasswordResetPending(true);
       }
@@ -71,15 +87,17 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
     } catch (err) {
       setPasswordResetPending(false);
 
-      setError(
-        err instanceof Error ? err.message : "Invalid verification code.",
-      );
+      console.error(err);
     }
   };
 
   const handleResend = async () => {
+    if (isResending || resendCooldown > 0) {
+      return;
+    }
+
     try {
-      setError(null);
+      setIsResending(true);
       setResent(false);
 
       if (purpose === "signup") {
@@ -89,8 +107,38 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
       }
 
       setResent(true);
+      setResendCooldown(60);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to resend code.");
+      console.error(err);
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleTokenChange = (
+    text: string,
+    index: number,
+    currentValue: string,
+    onChange: (value: string) => void,
+  ) => {
+    const digits = text.replace(/\D/g, "");
+    const nextValue = currentValue.split("");
+
+    if (digits.length > 0) {
+      nextValue.splice(index, digits.length, ...digits.split(""));
+    } else {
+      nextValue[index] = "";
+    }
+    onChange(nextValue.slice(0, 6).join(""));
+
+    if (digits.length > 0) {
+      inputRefs.current[Math.min(index + digits.length, 5)]?.focus();
+    }
+  };
+
+  const handleTokenKeyPress = (index: number, key: string, value: string) => {
+    if (key === "Backspace" && !value && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -98,13 +146,9 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
     <AppScreen className="justify-center px-6">
       <AuthHeader
         icon={MailIcon}
-        title="Verify your account"
-        subtitle="Enter the 6-digit code we sent to your email."
+        title={t("auth.verifyAccount.accountVerifyTitle")}
+        subtitle={t("auth.verifyAccount.accountVerifySubtitle", { email })}
       />
-
-      <Box className="mt-6 flex-row items-center justify-center gap-2 rounded-xl bg-muted px-4 py-3">
-        <Text className="text-sm font-medium text-foreground">{email}</Text>
-      </Box>
 
       <Box className="mt-8">
         <Controller
@@ -112,25 +156,45 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
           name="token"
           render={({ field: { onChange, onBlur, value } }) => (
             <FormControl isInvalid={!!errors.token}>
-              <Input
-                className={`h-12 rounded-xl px-3.5 ${
-                  errors.token ? "border-destructive" : ""
-                }`}
-              >
-                <InputField
-                  placeholder="000000"
-                  keyboardType="number-pad"
-                  maxLength={6}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              </Input>
+              <Box className="flex-row gap-2">
+                {Array.from({ length: 6 }, (_, index) => (
+                  <Input
+                    key={index}
+                    className={`h-12 flex-1 rounded-xl px-0 ${
+                      errors.token ? "border-destructive" : ""
+                    }`}
+                  >
+                    <InputField
+                      ref={(input) => {
+                        inputRefs.current[index] = input as FocusableInput | null;
+                      }}
+                      keyboardType="number-pad"
+                      maxLength={6 - index}
+                      value={value[index] ?? ""}
+                      style={{
+                        textAlign: "center",
+                        textAlignVertical: "center",
+                      }}
+                      onChangeText={(text) =>
+                        handleTokenChange(text, index, value, onChange)
+                      }
+                      onKeyPress={({ nativeEvent }) =>
+                        handleTokenKeyPress(
+                          index,
+                          nativeEvent.key,
+                          value[index] ?? "",
+                        )
+                      }
+                      onBlur={onBlur}
+                    />
+                  </Input>
+                ))}
+              </Box>
 
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.token?.message}
+                  {t(`auth.errors.validation.${errors.token?.message}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -138,16 +202,10 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
         />
       </Box>
 
-      {error && (
-        <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-          <Text className="text-sm text-destructive">{error}</Text>
-        </Box>
-      )}
-
       {resent && (
         <Box className="mt-4 flex-row items-center gap-2 rounded-xl bg-muted px-4 py-3">
           <Text className="text-sm text-muted-foreground">
-            A new code has been sent.
+            {t("auth.common.newCodeSent")}
           </Text>
         </Box>
       )}
@@ -159,16 +217,23 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
       >
         {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
-        <ButtonText>{isPending ? "Verifying..." : "Verify"}</ButtonText>
+        <ButtonText>{isPending ? t("auth.verifyAccount.verifying") : t("auth.verifyAccount.verify")}</ButtonText>
       </Button>
 
       <Box className="mt-8 flex-row justify-center">
         <Text className="text-sm text-muted-foreground">
-          Didn&apos;t receive the code?{" "}
+          {t("auth.verifyAccount.didNotReceiveCode")}
         </Text>
 
-        <Pressable onPress={handleResend}>
-          <Text className="text-sm font-semibold text-foreground">Resend</Text>
+        <Pressable
+          onPress={handleResend}
+          disabled={isResending || resendCooldown > 0}
+        >
+          <Text className="text-sm font-semibold text-foreground">
+            {resendCooldown > 0
+              ? `${t("auth.verifyAccount.resend")} (${resendCooldown}s)`
+              : t("auth.verifyAccount.resend")}
+          </Text>
         </Pressable>
       </Box>
     </AppScreen>

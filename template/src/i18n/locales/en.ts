@@ -1,0 +1,94 @@
+import type { Locale } from "@/i18n/locales/types";
+
+export const en = {
+  common: {
+    continue: "Continue",
+    cancel: "Cancel",
+    save: "Save",
+    delete: "Delete",
+    retry: "Retry",
+    loading: "Loading...",
+  },
+  errors: {
+    unknown: "Something went wrong. Please try again.",
+    network: "Please check your internet connection and try again.",
+    validation: "Please check the entered information.",
+    database: "A database error occurred. Please try again.",
+    api: "Something went wrong while communicating with the server.",
+    auth: {
+      invalidCredentials: "The email or password is incorrect.",
+      emailNotConfirmed: "Please verify your email address before signing in.",
+      userAlreadyExists: "An account with this email already exists.",
+      invalidOtp: "The verification code is invalid.",
+      otpExpired:
+        "This verification code has expired. Please request a new one.",
+    },
+  },
+  auth: {
+    common: {
+      email: "Email",
+      password: "Password",
+      confirmPassword: "Confirm Password",
+      name: "Name",
+      surname: "Surname",
+      error: {
+        min_name_length: "Name must be at least 2 characters.",
+        min_surname_length: "Surname must be at least 2 characters.",
+        enter_valid_email: "Please enter a valid email address.",
+        min_password_length: "Password must be at least 6 characters.",
+        max_password_length: "Password must be at most 20 characters.",
+        passwords_do_not_match: "Passwords do not match.",
+        enter_valid_otp: "Please enter a valid 6-digit verification code.",
+        password_must_contain_uppercase_letter:
+          "Password must contain at least one uppercase letter.",
+        password_must_contain_lowercase_letter:
+          "Password must contain at least one lowercase letter.",
+        password_must_contain_number:
+          "Password must contain at least one number.",
+        password_must_contain_special_character:
+          "Password must contain at least one special character.",
+      },
+    },
+    login: {
+      title: "Welcome back",
+      subtitle: "Sign in to continue to your account.",
+      forgotPassword: "Forgot password?",
+      noAccount: "Don't have an account?",
+      signUp: "Sign up",
+      signingIn: "Signing in...",
+      signIn: "Sign In",
+    },
+    register: {
+      title: "Create an account",
+      subtitle: "Sign up to get started with your account.",
+      creating: "Creating...",
+      createAccount: "Create Account",
+      signIn: "Sign In",
+      alreadyHaveAccount: "Already have an account?",
+    },
+    forgotPassword:{
+      title: "Forgot Password",
+      subtitle: "Enter your email address to reset your password.",
+      sendResetLink: "Send Reset Link",
+      rememberPassword: "Remember your password?",
+      sending: "Sending...",
+      signIn: "Sign In",
+    },
+    resetPassword:{
+      title: "Reset Password",
+      subtitle: "Enter your new password below.",
+      updating: "Updating...",
+      updatePassword: "Update Password",
+      signIn: "Sign In",
+    },
+    verifyAccount: {
+      accountVerifyTitle: "Verify your account",
+      accountVerifySubtitle: "Enter the 6-digit code we sent to {{email}}.",
+      didNotReceiveCode: "Didn't receive the code?",
+      resend: "Resend",
+      newCodeSent: "A new code has been sent.",
+      verifying: "Verifying...",
+      verify: "Verify"
+    }
+  },
+} satisfies Locale;

@@ -1,3 +1,5 @@
+import '@/i18n';
+
 import { NavigationContainer } from "@react-navigation/native";
 import { linking } from "@/app/navigation/linking";
 import { SafeAreaProvider } from "react-native-safe-area-context";

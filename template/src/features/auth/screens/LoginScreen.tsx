@@ -33,16 +33,15 @@ import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { AppScreen } from "@/components/app/AppScreen";
+import { useTranslation } from "react-i18next";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export function LoginScreen({ navigation }: Props) {
-  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation();
 
-  const { mutateAsync: login, isPending } = useLogin();
-
-  throw new Error("Test ErrorBoundary");
+  const { mutateAsync: login, isPending, error } = useLogin();
 
   const {
     control,
@@ -58,14 +57,13 @@ export function LoginScreen({ navigation }: Props) {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      setError(null);
 
       await login({
         email: values.email,
         password: values.password,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to sign in.");
+      console.error(err);
     }
   };
 
@@ -73,8 +71,8 @@ export function LoginScreen({ navigation }: Props) {
     <AppScreen className="justify-center px-6">
       <AuthHeader
         icon={LockIcon}
-        title="Welcome back"
-        subtitle="Sign in to continue to your account."
+        title={t("auth.login.title")}
+        subtitle={t("auth.login.subtitle")}
       />
 
       <Box className="mt-10 gap-4">
@@ -85,7 +83,7 @@ export function LoginScreen({ navigation }: Props) {
             <FormControl isInvalid={!!errors.email}>
               <FormControlLabel>
                 <FormControlLabelText className="text-sm">
-                  Email
+                  {t("auth.common.email")}
                 </FormControlLabelText>
               </FormControlLabel>
 
@@ -110,7 +108,7 @@ export function LoginScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.email?.message}
+                  {t(`auth.common.error.${errors.email?.message ?? ""}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -124,7 +122,7 @@ export function LoginScreen({ navigation }: Props) {
             <FormControl isInvalid={!!errors.password}>
               <FormControlLabel>
                 <FormControlLabelText className="text-sm">
-                  Password
+                  {t("auth.common.password")}
                 </FormControlLabelText>
               </FormControlLabel>
 
@@ -136,7 +134,7 @@ export function LoginScreen({ navigation }: Props) {
                 <InputIcon as={LockIcon} className="text-muted-foreground" />
 
                 <InputField
-                  placeholder="Your password"
+                  placeholder="••••••••"
                   secureTextEntry={!showPassword}
                   value={value}
                   onChangeText={onChange}
@@ -154,7 +152,7 @@ export function LoginScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.password?.message}
+                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -166,16 +164,10 @@ export function LoginScreen({ navigation }: Props) {
           onPress={() => navigation.navigate("ForgotPassword")}
         >
           <Text className="text-sm font-medium text-foreground">
-            Forgot password?
+            {t("auth.login.forgotPassword")}
           </Text>
         </Pressable>
       </Box>
-
-      {error && (
-        <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-          <Text className="text-sm text-destructive">{error}</Text>
-        </Box>
-      )}
 
       <Button
         className="mt-6 h-12 w-full rounded-xl"
@@ -184,16 +176,16 @@ export function LoginScreen({ navigation }: Props) {
       >
         {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
-        <ButtonText>{isPending ? "Signing in..." : "Sign In"}</ButtonText>
+        <ButtonText>{isPending ? t("auth.login.signingIn") : t("auth.login.signIn")}</ButtonText>
       </Button>
 
-      <Box className="mt-8 flex-row justify-center">
+      <Box className="mt-8 flex-row justify-center gap-2">
         <Text className="text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t("auth.login.noAccount")}
         </Text>
 
         <Pressable onPress={() => navigation.navigate("Register")}>
-          <Text className="text-sm font-semibold text-foreground">Sign up</Text>
+          <Text className="text-sm font-semibold text-foreground">{t("auth.login.signUp")}</Text>
         </Pressable>
       </Box>
     </AppScreen>

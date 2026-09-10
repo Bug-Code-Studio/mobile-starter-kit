@@ -1,21 +1,12 @@
-import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { AppScreen } from '@/components/app/AppScreen';
-import { AuthHeader } from '@/features/auth/components/AuthHeader';
-import {
-  Input,
-  InputField,
-  InputIcon,
-  InputSlot,
-} from '@/components/ui/input';
-import {
-  Button,
-  ButtonSpinner,
-  ButtonText,
-} from '@/components/ui/button';
+import { AppScreen } from "@/components/app/AppScreen";
+import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import {
   AlertCircleIcon,
   EyeIcon,
@@ -23,7 +14,7 @@ import {
   LockIcon,
   MailIcon,
   UnlockIcon,
-} from '@/components/ui/icon';
+} from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -31,27 +22,30 @@ import {
   FormControlErrorText,
   FormControlLabel,
   FormControlLabelText,
-} from '@/components/ui/form-control';
+} from "@/components/ui/form-control";
 
-import type { AuthStackParamList } from '@/app/navigation/types';
-import { RegisterFormValues, registerSchema } from '@/features/auth/schemas/authSchemas';
-import { useRegister } from '@/features/auth/hooks/useRegister';
-import { Box } from '@/components/ui/box';
-import { Pressable } from '@/components/ui/pressable';
-import { ScrollView } from '@/components/ui/scroll-view';
-import { Text } from '@/components/ui/text';
+import type { AuthStackParamList } from "@/app/navigation/types";
+import {
+  RegisterFormValues,
+  registerSchema,
+} from "@/features/auth/schemas/authSchemas";
+import { useRegister } from "@/features/auth/hooks/useRegister";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Text } from "@/components/ui/text";
+import { useTranslation } from "react-i18next";
+import { KeyboardAvoidingView } from "react-native/Libraries/Components/Keyboard/KeyboardAvoidingView";
+import { Platform } from "react-native";
 
-type Props = NativeStackScreenProps<
-  AuthStackParamList,
-  'Register'
->;
+type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
 export function RegisterScreen({ navigation }: Props) {
-  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const { t } = useTranslation();
 
-  const { mutateAsync: register, isPending } = useRegister();
+  const { mutateAsync: register, isPending, error } = useRegister();
 
   const {
     control,
@@ -60,20 +54,16 @@ export function RegisterScreen({ navigation }: Props) {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
-      surname: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
+      name: "",
+      surname: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (
-    values: RegisterFormValues,
-  ) => {
+  const onSubmit = async (values: RegisterFormValues) => {
     try {
-      setError(null);
-
       const { session } = await register({
         name: values.name,
         surname: values.surname,
@@ -82,285 +72,267 @@ export function RegisterScreen({ navigation }: Props) {
       });
 
       if (!session) {
-        navigation.navigate('AccountVerify', {
+        navigation.navigate("AccountVerify", {
           email: values.email,
-          purpose: 'signup',
+          purpose: "signup",
         });
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to create account.',
-      );
+      // Handle error appropriately, e.g., show a toast or set a local error state
+      console.error(err);
     }
   };
 
   return (
-    <AppScreen edges={['top', 'bottom']}>
-      <ScrollView
-        contentContainerClassName="justify-center px-6"
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
+    <AppScreen className="px-6">
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <AuthHeader
-          icon={UnlockIcon}
-          title="Create account"
-          subtitle="Enter your information to get started."
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            paddingVertical: 24,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <AuthHeader
+            icon={UnlockIcon}
+            title={t("auth.register.title")}
+            subtitle={t("auth.register.subtitle")}
+          />
+
+      <Box className="mt-8 gap-4">
+        <Box className="flex-row gap-3">
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <FormControl className="flex-1" isInvalid={!!errors.name}>
+                <FormControlLabel>
+                  <FormControlLabelText className="text-sm">
+                    {t("auth.common.name")}
+                  </FormControlLabelText>
+                </FormControlLabel>
+
+                <Input
+                  className={`h-12 rounded-xl px-3.5 ${
+                    errors.name ? "border-destructive" : ""
+                  }`}
+                >
+                  <InputField
+                    placeholder={t("John")}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                </Input>
+
+                <FormControlError>
+                  <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorText>
+                    {t(`auth.common.error.${errors.name?.message ?? ""}`)}
+                  </FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="surname"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <FormControl className="flex-1" isInvalid={!!errors.surname}>
+                <FormControlLabel>
+                  <FormControlLabelText className="text-sm">
+                    {t("auth.common.surname")}
+                  </FormControlLabelText>
+                </FormControlLabel>
+
+                <Input
+                  className={`h-12 rounded-xl px-3.5 ${
+                    errors.surname ? "border-destructive" : ""
+                  }`}
+                >
+                  <InputField
+                    placeholder={t("Doe")}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                </Input>
+
+                <FormControlError>
+                  <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorText>
+                    {t(`auth.common.error.${errors.surname?.message ?? ""}`)}
+                  </FormControlErrorText>
+                </FormControlError>
+              </FormControl>
+            )}
+          />
+        </Box>
+
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <FormControl isInvalid={!!errors.email}>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm">
+                  {t("auth.common.email")}
+                </FormControlLabelText>
+              </FormControlLabel>
+
+              <Input
+                className={`h-12 rounded-xl px-3.5 ${
+                  errors.email ? "border-destructive" : ""
+                }`}
+              >
+                <InputIcon as={MailIcon} className="text-muted-foreground" />
+
+                <InputField
+                  placeholder="you@example.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+              </Input>
+
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {t(`auth.common.error.${errors.email?.message ?? ""}`)}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+          )}
         />
 
-        <Box className="mt-8 gap-4">
-          <Box className="flex-row gap-3">
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <FormControl className="flex-1" isInvalid={!!errors.name}>
-                  <FormControlLabel>
-                    <FormControlLabelText className="text-sm">
-                      Name
-                    </FormControlLabelText>
-                  </FormControlLabel>
+        <Controller
+          control={control}
+          name="password"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <FormControl isInvalid={!!errors.password}>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm">
+                  {t("auth.common.password")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-                  <Input
-                    className={`h-12 rounded-xl px-3.5 ${
-                      errors.name ? 'border-destructive' : ''
-                    }`}
-                  >
-                    <InputField
-                      placeholder="Name"
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-                  </Input>
+              <Input
+                className={`h-12 rounded-xl px-3.5 ${
+                  errors.password ? "border-destructive" : ""
+                }`}
+              >
+                <InputIcon as={LockIcon} className="text-muted-foreground" />
 
-                  <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
-                    <FormControlErrorText>
-                      {errors.name?.message}
-                    </FormControlErrorText>
-                  </FormControlError>
-                </FormControl>
-              )}
-            />
+                <InputField
+                  placeholder="••••••••"
+                  secureTextEntry={!showPassword}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
 
-            <Controller
-              control={control}
-              name="surname"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <FormControl className="flex-1" isInvalid={!!errors.surname}>
-                  <FormControlLabel>
-                    <FormControlLabelText className="text-sm">
-                      Surname
-                    </FormControlLabelText>
-                  </FormControlLabel>
-
-                  <Input
-                    className={`h-12 rounded-xl px-3.5 ${
-                      errors.surname ? 'border-destructive' : ''
-                    }`}
-                  >
-                    <InputField
-                      placeholder="Surname"
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-                  </Input>
-
-                  <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
-                    <FormControlErrorText>
-                      {errors.surname?.message}
-                    </FormControlErrorText>
-                  </FormControlError>
-                </FormControl>
-              )}
-            />
-          </Box>
-
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <FormControl isInvalid={!!errors.email}>
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm">
-                    Email
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <Input
-                  className={`h-12 rounded-xl px-3.5 ${
-                    errors.email ? 'border-destructive' : ''
-                  }`}
-                >
+                <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
                   <InputIcon
-                    as={MailIcon}
+                    as={showPassword ? EyeOffIcon : EyeIcon}
                     className="text-muted-foreground"
                   />
+                </InputSlot>
+              </Input>
 
-                  <InputField
-                    placeholder="you@example.com"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-                </Input>
-
-                <FormControlError>
-                  <FormControlErrorIcon as={AlertCircleIcon} />
-                  <FormControlErrorText>
-                    {errors.email?.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              </FormControl>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <FormControl isInvalid={!!errors.password}>
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm">
-                    Password
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <Input
-                  className={`h-12 rounded-xl px-3.5 ${
-                    errors.password ? 'border-destructive' : ''
-                  }`}
-                >
-                  <InputIcon
-                    as={LockIcon}
-                    className="text-muted-foreground"
-                  />
-
-                  <InputField
-                    placeholder="At least 8 characters"
-                    secureTextEntry={!showPassword}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-
-                  <InputSlot
-                    onPress={() =>
-                      setShowPassword((prev) => !prev)
-                    }
-                  >
-                    <InputIcon
-                      as={showPassword ? EyeOffIcon : EyeIcon}
-                      className="text-muted-foreground"
-                    />
-                  </InputSlot>
-                </Input>
-
-                <FormControlError>
-                  <FormControlErrorIcon as={AlertCircleIcon} />
-                  <FormControlErrorText>
-                    {errors.password?.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              </FormControl>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="confirmPassword"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <FormControl isInvalid={!!errors.confirmPassword}>
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm">
-                    Confirm password
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <Input
-                  className={`h-12 rounded-xl px-3.5 ${
-                    errors.confirmPassword
-                      ? 'border-destructive'
-                      : ''
-                  }`}
-                >
-                  <InputIcon
-                    as={LockIcon}
-                    className="text-muted-foreground"
-                  />
-
-                  <InputField
-                    placeholder="Re-enter your password"
-                    secureTextEntry={!showConfirm}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                  />
-
-                  <InputSlot
-                    onPress={() =>
-                      setShowConfirm((prev) => !prev)
-                    }
-                  >
-                    <InputIcon
-                      as={showConfirm ? EyeOffIcon : EyeIcon}
-                      className="text-muted-foreground"
-                    />
-                  </InputSlot>
-                </Input>
-
-                <FormControlError>
-                  <FormControlErrorIcon as={AlertCircleIcon} />
-                  <FormControlErrorText>
-                    {errors.confirmPassword?.message}
-                  </FormControlErrorText>
-                </FormControlError>
-              </FormControl>
-            )}
-          />
-        </Box>
-
-        {error && (
-          <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-            <Text className="text-sm text-destructive">
-              {error}
-            </Text>
-          </Box>
-        )}
-
-        <Button
-          className="mt-6 h-12 w-full rounded-xl"
-          onPress={handleSubmit(onSubmit)}
-          disabled={isPending}
-        >
-          {isPending && (
-            <ButtonSpinner className="text-primary-foreground" />
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
           )}
+        />
 
-          <ButtonText>
-            {isPending ? 'Creating...' : 'Create Account'}
-          </ButtonText>
-        </Button>
+        <Controller
+          control={control}
+          name="confirmPassword"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <FormControl isInvalid={!!errors.confirmPassword}>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm">
+                  {t("auth.common.confirmPassword")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-        <Box className="mt-8 flex-row justify-center">
-          <Text className="text-sm text-muted-foreground">
-            Already have an account?{' '}
-          </Text>
+              <Input
+                className={`h-12 rounded-xl px-3.5 ${
+                  errors.confirmPassword ? "border-destructive" : ""
+                }`}
+              >
+                <InputIcon as={LockIcon} className="text-muted-foreground" />
 
-          <Pressable onPress={() => navigation.goBack()}>
-            <Text className="text-sm font-semibold text-foreground">
-              Sign in
+                <InputField
+                  placeholder="••••••••"
+                  secureTextEntry={!showConfirm}
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                />
+
+                <InputSlot onPress={() => setShowConfirm((prev) => !prev)}>
+                  <InputIcon
+                    as={showConfirm ? EyeOffIcon : EyeIcon}
+                    className="text-muted-foreground"
+                  />
+                </InputSlot>
+              </Input>
+
+              <FormControlError>
+                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorText>
+                  {t(
+                    `auth.common.error.${errors.confirmPassword?.message ?? ""}`,
+                  )}
+                </FormControlErrorText>
+              </FormControlError>
+            </FormControl>
+          )}
+        />
+      </Box>
+
+      <Button
+        className="mt-6 h-12 w-full rounded-xl"
+        onPress={handleSubmit(onSubmit)}
+        disabled={isPending}
+      >
+        {isPending && <ButtonSpinner className="text-primary-foreground" />}
+
+        <ButtonText>
+          {isPending
+            ? t("auth.register.creating")
+            : t("auth.register.createAccount")}
+        </ButtonText>
+      </Button>
+
+          <Box className="mt-8 flex-row justify-center gap-2">
+            <Text className="text-sm text-muted-foreground">
+              {t("auth.register.alreadyHaveAccount")}
             </Text>
-          </Pressable>
-        </Box>
-      </ScrollView>
+
+            <Pressable onPress={() => navigation.goBack()}>
+              <Text className="text-sm font-semibold text-foreground">
+                {t("auth.register.signIn")}
+              </Text>
+            </Pressable>
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AppScreen>
   );
 }

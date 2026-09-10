@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '@/app/navigation/types';
 import { Controller, useForm } from 'react-hook-form';
@@ -26,7 +27,7 @@ import { Text } from '@/components/ui/text';
 type Props = NativeStackScreenProps<AuthStackParamList, "ResetPassword">;
 
 export function ResetPasswordScreen({ navigation }: Props) {
-  const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -54,7 +55,6 @@ export function ResetPasswordScreen({ navigation }: Props) {
     values: ResetPasswordFormValues,
   ) => {
     try {
-      setError(null);
 
       await resetPassword(values.password);
 
@@ -62,11 +62,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
 
       navigation.navigate('Login');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to update password.',
-      );
+      console.error(err);
     }
   };
 
@@ -74,8 +70,8 @@ export function ResetPasswordScreen({ navigation }: Props) {
     <AppScreen className="justify-center px-6">
       <AuthHeader
         icon={LockIcon}
-        title="Reset password"
-        subtitle="Create a new password for your account."
+        title={t("auth.resetPassword.title")}
+        subtitle={t("auth.resetPassword.subtitle")}
       />
 
       <Box className="mt-10 gap-4">
@@ -86,7 +82,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
             <FormControl isInvalid={!!errors.password}>
               <FormControlLabel>
                 <FormControlLabelText className="text-sm">
-                  New password
+                  {t("auth.common.newPassword")}
                 </FormControlLabelText>
               </FormControlLabel>
 
@@ -101,7 +97,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
                 />
 
                 <InputField
-                  placeholder="At least 8 characters"
+                  placeholder="••••••••"
                   secureTextEntry={!showPassword}
                   value={value}
                   onChangeText={onChange}
@@ -123,7 +119,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.password?.message}
+                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -137,7 +133,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
             <FormControl isInvalid={!!errors.confirmPassword}>
               <FormControlLabel>
                 <FormControlLabelText className="text-sm">
-                  Confirm password
+                  {t("auth.common.confirmPassword")}
                 </FormControlLabelText>
               </FormControlLabel>
 
@@ -154,7 +150,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
                 />
 
                 <InputField
-                  placeholder="Re-enter your password"
+                  placeholder="••••••••"
                   secureTextEntry={!showConfirm}
                   value={value}
                   onChangeText={onChange}
@@ -176,21 +172,13 @@ export function ResetPasswordScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {errors.confirmPassword?.message}
+                  {t(`auth.common.error.${errors.confirmPassword?.message ?? ""}`)}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
           )}
         />
       </Box>
-
-      {error && (
-        <Box className="mt-4 rounded-xl bg-destructive/10 px-4 py-3">
-          <Text className="text-sm text-destructive">
-            {error}
-          </Text>
-        </Box>
-      )}
 
       <Button
         className="mt-6 h-12 w-full rounded-xl"
@@ -202,7 +190,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
         )}
 
         <ButtonText>
-          {isPending ? 'Updating...' : 'Update Password'}
+          {isPending ? t('auth.common.updating') : t('auth.common.updatePassword')}
         </ButtonText>
       </Button>
     </AppScreen>
