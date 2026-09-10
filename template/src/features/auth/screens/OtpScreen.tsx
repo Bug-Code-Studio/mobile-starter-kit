@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AppScreen } from "@/components/app/AppScreen";
+import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
@@ -27,10 +28,10 @@ import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 
-type Props = NativeStackScreenProps<AuthStackParamList, "AccountVerify">;
+type Props = NativeStackScreenProps<AuthStackParamList, "OtpScreen">;
 type FocusableInput = { focus: () => void };
 
-export function AccountVerifyScreen({ route, navigation }: Props) {
+export function OtpScreen({ route, navigation }: Props) {
   const { email, purpose } = route.params;
 
   const { t } = useTranslation();
@@ -38,6 +39,7 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
   const [resent, setResent] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(60);
   const [isResending, setIsResending] = useState(false);
+  const [resendError, setResendError] = useState<unknown>(null);
   const inputRefs = useRef<Array<FocusableInput | null>>([]);
 
   useEffect(() => {
@@ -52,7 +54,12 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const { mutateAsync: verifyOtp, isPending } = useVerifyOtp();
+  const {
+    mutateAsync: verifyOtp,
+    isPending,
+    error,
+    reset: resetVerifyOtpError,
+  } = useVerifyOtp();
 
   const setPasswordResetPending = useAuthFlowStore(
     (state) => state.setPasswordResetPending,
@@ -99,6 +106,8 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
     try {
       setIsResending(true);
       setResent(false);
+      setResendError(null);
+      resetVerifyOtpError();
 
       if (purpose === "signup") {
         await resendSignupOtp(email);
@@ -109,7 +118,7 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
       setResent(true);
       setResendCooldown(60);
     } catch (err) {
-      console.error(err);
+      setResendError(err);
     } finally {
       setIsResending(false);
     }
@@ -146,8 +155,16 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
     <AppScreen className="justify-center px-6">
       <AuthHeader
         icon={MailIcon}
-        title={t("auth.verifyAccount.accountVerifyTitle")}
-        subtitle={t("auth.verifyAccount.accountVerifySubtitle", { email })}
+        title={
+          purpose === "signup"
+            ? t("auth.verifyAccount.accountVerifyTitle")
+            : t("auth.verifyAccount.passwordResetTitle")
+        }
+        subtitle={
+          purpose === "signup"
+            ? t("auth.verifyAccount.accountVerifySubtitle", { email })
+            : t("auth.verifyAccount.passwordResetSubtitle", { email })
+        }
       />
 
       <Box className="mt-8">
@@ -166,7 +183,8 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
                   >
                     <InputField
                       ref={(input) => {
-                        inputRefs.current[index] = input as FocusableInput | null;
+                        inputRefs.current[index] =
+                          input as FocusableInput | null;
                       }}
                       keyboardType="number-pad"
                       maxLength={6 - index}
@@ -217,8 +235,14 @@ export function AccountVerifyScreen({ route, navigation }: Props) {
       >
         {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
-        <ButtonText>{isPending ? t("auth.verifyAccount.verifying") : t("auth.verifyAccount.verify")}</ButtonText>
+        <ButtonText>
+          {isPending
+            ? t("auth.verifyAccount.verifying")
+            : t("auth.verifyAccount.verify")}
+        </ButtonText>
       </Button>
+
+      <AppErrorMessage className="mt-4" error={error ?? resendError} />
 
       <Box className="mt-8 flex-row justify-center">
         <Text className="text-sm text-muted-foreground">

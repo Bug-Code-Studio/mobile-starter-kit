@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AppScreen } from "@/components/app/AppScreen";
+import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
@@ -26,6 +27,9 @@ import {
 
 import type { AuthStackParamList } from "@/app/navigation/types";
 import {
+  NAME_MIN_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
   RegisterFormValues,
   registerSchema,
 } from "@/features/auth/schemas/authSchemas";
@@ -72,7 +76,7 @@ export function RegisterScreen({ navigation }: Props) {
       });
 
       if (!session) {
-        navigation.navigate("AccountVerify", {
+        navigation.navigate("OtpScreen", {
           email: values.email,
           purpose: "signup",
         });
@@ -134,7 +138,9 @@ export function RegisterScreen({ navigation }: Props) {
                 <FormControlError>
                   <FormControlErrorIcon as={AlertCircleIcon} />
                   <FormControlErrorText>
-                    {t(`auth.common.error.${errors.name?.message ?? ""}`)}
+                    {t(`auth.common.error.${errors.name?.message ?? ""}`, {
+                      min: NAME_MIN_LENGTH,
+                    })}
                   </FormControlErrorText>
                 </FormControlError>
               </FormControl>
@@ -168,7 +174,9 @@ export function RegisterScreen({ navigation }: Props) {
                 <FormControlError>
                   <FormControlErrorIcon as={AlertCircleIcon} />
                   <FormControlErrorText>
-                    {t(`auth.common.error.${errors.surname?.message ?? ""}`)}
+                    {t(`auth.common.error.${errors.surname?.message ?? ""}`, {
+                      min: NAME_MIN_LENGTH,
+                    })}
                   </FormControlErrorText>
                 </FormControlError>
               </FormControl>
@@ -252,7 +260,10 @@ export function RegisterScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
+                    {t(`auth.common.error.${errors.password?.message ?? ""}`, {
+                      min: PASSWORD_MIN_LENGTH,
+                      max: PASSWORD_MAX_LENGTH,
+                    })}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -298,6 +309,10 @@ export function RegisterScreen({ navigation }: Props) {
                 <FormControlErrorText>
                   {t(
                     `auth.common.error.${errors.confirmPassword?.message ?? ""}`,
+                      {
+                        min: PASSWORD_MIN_LENGTH,
+                        max: PASSWORD_MAX_LENGTH,
+                      },
                   )}
                 </FormControlErrorText>
               </FormControlError>
@@ -319,6 +334,8 @@ export function RegisterScreen({ navigation }: Props) {
             : t("auth.register.createAccount")}
         </ButtonText>
       </Button>
+
+      <AppErrorMessage className="mt-4" error={error} />
 
           <Box className="mt-8 flex-row justify-center gap-2">
             <Text className="text-sm text-muted-foreground">

@@ -6,6 +6,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { AppScreen } from '@/components/app/AppScreen';
+import { AppErrorMessage } from '@/components/app/AppErrorMessage';
 import { AuthHeader } from '@/features/auth/components/AuthHeader';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { AlertCircleIcon, EyeIcon, EyeOffIcon, LockIcon } from '@/components/ui/icon';
@@ -17,7 +18,12 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from '@/components/ui/form-control';
-import { ResetPasswordFormValues, resetPasswordSchema } from '@/features/auth/schemas/authSchemas';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  ResetPasswordFormValues,
+  resetPasswordSchema,
+} from '@/features/auth/schemas/authSchemas';
 import { useResetPassword } from '@/features/auth/hooks/useResetPassword';
 import { useAuthFlowStore } from '@/stores/authFlowStore';
 import { Button, ButtonSpinner, ButtonText } from '@/components/ui/button';
@@ -31,7 +37,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const { mutateAsync: resetPassword, isPending } =
+  const { mutateAsync: resetPassword, isPending, error } =
     useResetPassword();
 
   const setPasswordResetPending =
@@ -119,7 +125,10 @@ export function ResetPasswordScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
+                    {t(`auth.common.error.${errors.password?.message ?? ""}`, {
+                      min: PASSWORD_MIN_LENGTH,
+                      max: PASSWORD_MAX_LENGTH,
+                    })}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -172,7 +181,13 @@ export function ResetPasswordScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {t(`auth.common.error.${errors.confirmPassword?.message ?? ""}`)}
+                    {t(
+                      `auth.common.error.${errors.confirmPassword?.message ?? ""}`,
+                      {
+                        min: PASSWORD_MIN_LENGTH,
+                        max: PASSWORD_MAX_LENGTH,
+                      },
+                    )}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -181,7 +196,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
       </Box>
 
       <Button
-        className="mt-6 h-12 w-full rounded-xl"
+        className="mt-6 h-12 w-full rounded-xl gap-2"
         onPress={handleSubmit(onSubmit)}
         disabled={isPending}
       >
@@ -190,9 +205,11 @@ export function ResetPasswordScreen({ navigation }: Props) {
         )}
 
         <ButtonText>
-          {isPending ? t('auth.common.updating') : t('auth.common.updatePassword')}
+          {isPending ? t('auth.resetPassword.updating') : t('auth.resetPassword.updatePassword')}
         </ButtonText>
       </Button>
+
+      <AppErrorMessage className="mt-4" error={error} />
     </AppScreen>
   );
 }

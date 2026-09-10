@@ -24,6 +24,8 @@ import {
 
 import type { AuthStackParamList } from "@/app/navigation/types";
 import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
   LoginFormValues,
   loginSchema,
 } from "@/features/auth/schemas/authSchemas";
@@ -33,6 +35,7 @@ import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { AppScreen } from "@/components/app/AppScreen";
+import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { useTranslation } from "react-i18next";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
@@ -152,7 +155,10 @@ export function LoginScreen({ navigation }: Props) {
               <FormControlError>
                 <FormControlErrorIcon as={AlertCircleIcon} />
                 <FormControlErrorText>
-                  {t(`auth.common.error.${errors.password?.message ?? ""}`)}
+                  {t(`auth.common.error.${errors.password?.message ?? ""}`, {
+                    min: PASSWORD_MIN_LENGTH,
+                    max: PASSWORD_MAX_LENGTH,
+                  })}
                 </FormControlErrorText>
               </FormControlError>
             </FormControl>
@@ -178,6 +184,8 @@ export function LoginScreen({ navigation }: Props) {
 
         <ButtonText>{isPending ? t("auth.login.signingIn") : t("auth.login.signIn")}</ButtonText>
       </Button>
+
+      <AppErrorMessage className="mt-4" error={error} />
 
       <Box className="mt-8 flex-row justify-center gap-2">
         <Text className="text-sm text-muted-foreground">

@@ -28,15 +28,16 @@ export const en = {
     common: {
       email: "Email",
       password: "Password",
+      newPassword: "New Password",
       confirmPassword: "Confirm Password",
       name: "Name",
       surname: "Surname",
       error: {
-        min_name_length: "Name must be at least 2 characters.",
-        min_surname_length: "Surname must be at least 2 characters.",
+        min_name_length: "Name must be at least {{min}} characters.",
+        min_surname_length: "Surname must be at least {{min}} characters.",
         enter_valid_email: "Please enter a valid email address.",
-        min_password_length: "Password must be at least 6 characters.",
-        max_password_length: "Password must be at most 20 characters.",
+        min_password_length: "Password must be at least {{min}} characters.",
+        max_password_length: "Password must be at most {{max}} characters.",
         passwords_do_not_match: "Passwords do not match.",
         enter_valid_otp: "Please enter a valid 6-digit verification code.",
         password_must_contain_uppercase_letter:
@@ -69,7 +70,7 @@ export const en = {
     forgotPassword:{
       title: "Forgot Password",
       subtitle: "Enter your email address to reset your password.",
-      sendResetLink: "Send Reset Link",
+      sendResetOtp: "Send Reset Code",
       rememberPassword: "Remember your password?",
       sending: "Sending...",
       signIn: "Sign In",
@@ -80,10 +81,13 @@ export const en = {
       updating: "Updating...",
       updatePassword: "Update Password",
       signIn: "Sign In",
+
     },
     verifyAccount: {
       accountVerifyTitle: "Verify your account",
       accountVerifySubtitle: "Enter the 6-digit code we sent to {{email}}.",
+      passwordResetTitle: "Reset your password",
+      passwordResetSubtitle: "Enter the 6-digit code we sent to {{email}}.",
       didNotReceiveCode: "Didn't receive the code?",
       resend: "Resend",
       newCodeSent: "A new code has been sent.",

@@ -15,10 +15,6 @@ export function OnboardingScreen({ navigation }: Props) {
 
   const handleComplete = () => {
     completeOnboarding();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Auth" }],
-    });
   };
 
   return (

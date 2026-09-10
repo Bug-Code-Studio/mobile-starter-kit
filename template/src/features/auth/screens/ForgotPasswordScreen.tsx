@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AppScreen } from "@/components/app/AppScreen";
+import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
 import { Input, InputField, InputIcon } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
@@ -36,7 +37,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, "ForgotPassword">;
 export function ForgotPasswordScreen({ navigation }: Props) {
   const { t } = useTranslation();
 
-  const { mutateAsync: sendResetOtp, isPending } = useForgotPassword();
+  const { mutateAsync: sendResetOtp, isPending, error } = useForgotPassword();
 
   const {
     control,
@@ -53,7 +54,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
     try {
       await sendResetOtp(values.email);
 
-      navigation.navigate("AccountVerify", {
+      navigation.navigate("OtpScreen", {
         email: values.email,
         purpose: "password-reset",
       });
@@ -119,9 +120,11 @@ export function ForgotPasswordScreen({ navigation }: Props) {
         {isPending && <ButtonSpinner className="text-primary-foreground" />}
 
         <ButtonText>
-          {isPending ? t("auth.forgotPassword.sending") : t("auth.forgotPassword.sendResetLink")}
+          {isPending ? t("auth.forgotPassword.sending") : t("auth.forgotPassword.sendResetOtp")}
         </ButtonText>
       </Button>
+
+      <AppErrorMessage className="mt-4" error={error} />
 
       <Box className="mt-8 flex-row justify-center gap-2">
         <Text className="text-sm text-muted-foreground">

@@ -26,6 +26,7 @@ export type Locale = {
       email: string;
       password: string;
       confirmPassword: string;
+      newPassword: string;
       name: string;
       surname: string;
       error: {
@@ -62,7 +63,7 @@ export type Locale = {
     forgotPassword: {
       title: string;
       subtitle: string;
-      sendResetLink: string;
+      sendResetOtp: string;
       rememberPassword: string;
       sending: string;
       signIn: string;
@@ -81,6 +82,8 @@ export type Locale = {
       resend: string;
       newCodeSent: string;
       verifying: string;
+      passwordResetTitle: string;
+      passwordResetSubtitle: string;
       verify: string;
     };
   };

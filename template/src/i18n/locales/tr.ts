@@ -29,15 +29,16 @@ export const tr = {
     common: {
       email: "E-posta",
       password: "Şifre",
+      newPassword: "Yeni Şifre",
       confirmPassword: "Şifreyi Onayla",
       name: "İsim",
       surname: "Soyisim",
       error: {
-        min_name_length: "İsim en az {min} karakter olmalıdır.",
-        min_surname_length: "Soyisim en az {min} karakter olmalıdır.",
+        min_name_length: "İsim en az {{min}} karakter olmalıdır.",
+        min_surname_length: "Soyisim en az {{min}} karakter olmalıdır.",
         enter_valid_email: "Lütfen geçerli bir e-posta adresi girin.",
-        min_password_length: "Şifre en az {min} karakter olmalıdır.",
-        max_password_length: "Şifre en fazla {max} karakter olmalıdır.",
+        min_password_length: "Şifre en az {{min}} karakter olmalıdır.",
+        max_password_length: "Şifre en fazla {{max}} karakter olmalıdır.",
         passwords_do_not_match: "Şifreler eşleşmiyor.",
         enter_valid_otp: "Lütfen geçerli bir doğrulama kodu girin.",
         password_must_contain_uppercase_letter: "Şifre en az bir büyük harf içermelidir.",
@@ -66,7 +67,7 @@ export const tr = {
     forgotPassword: {
       title: "Şifremi Unuttum",
       subtitle: "Lütfen e-posta adresinizi girin ve şifre sıfırlama bağlantısını alın.",
-      sendResetLink: "Sıfırlama Bağlantısını Gönder",
+      sendResetOtp: "Sıfırlama Kodu Gönder",
       rememberPassword: "Şifrenizi hatırlıyor musunuz?",
       sending: "Gönderiliyor...",
       signIn: "Giriş Yap"
@@ -81,6 +82,8 @@ export const tr = {
     verifyAccount: {
       accountVerifyTitle: "Hesabı Doğrula",
       accountVerifySubtitle: "Lütfen {{email}} e-posta adresinize gönderilen doğrulama kodunu girin.",
+      passwordResetTitle: "Şifrenizi Sıfırlayın",
+      passwordResetSubtitle: "Lütfen {{email}} e-posta adresinize gönderilen 6 haneli kodu girin.",
       didNotReceiveCode: "Kodu almadınız mı?",
       resend: "Yeniden Gönder",
       newCodeSent: "Yeni kod gönderildi.",

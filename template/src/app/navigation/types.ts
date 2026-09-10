@@ -9,7 +9,7 @@ export type AuthStackParamList = {
     Login: undefined;
     Register: undefined;
     ForgotPassword: undefined;
-    AccountVerify: {
+    OtpScreen: {
         email: string;
         purpose: 'signup' | 'password-reset';
     },

@@ -1,8 +1,13 @@
 import { z } from "zod";
 
+export const NAME_MIN_LENGTH = 2;
+export const PASSWORD_MIN_LENGTH = 6;
+export const PASSWORD_MAX_LENGTH = 64;
+
 export const passwordSchema = z
   .string()
-  .min(6, { message: "min_password_length" })
+  .min(PASSWORD_MIN_LENGTH, { message: "min_password_length" })
+  .max(PASSWORD_MAX_LENGTH, { message: "max_password_length" })
   .refine((val) => /[A-Z]/.test(val), {
     message: "password_must_contain_uppercase_letter",
   })
@@ -23,8 +28,8 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
-    name: z.string().min(2, "min_name_length"),
-    surname: z.string().min(2, "min_surname_length"),
+    name: z.string().min(NAME_MIN_LENGTH, "min_name_length"),
+    surname: z.string().min(NAME_MIN_LENGTH, "min_surname_length"),
     email: z.email("enter_valid_email"),
     password: passwordSchema,
     confirmPassword: passwordSchema,
