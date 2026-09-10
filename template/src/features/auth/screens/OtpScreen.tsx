@@ -27,6 +27,9 @@ import { useAuthFlowStore } from "@/stores/authFlowStore";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Platform } from "react-native";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "OtpScreen">;
 type FocusableInput = { focus: () => void };
@@ -64,6 +67,9 @@ export function OtpScreen({ route, navigation }: Props) {
   const setPasswordResetPending = useAuthFlowStore(
     (state) => state.setPasswordResetPending,
   );
+  const setAuthResultPending = useAuthFlowStore(
+    (state) => state.setAuthResultPending,
+  );
 
   const {
     control,
@@ -80,6 +86,8 @@ export function OtpScreen({ route, navigation }: Props) {
     try {
       if (purpose === "password-reset") {
         setPasswordResetPending(true);
+      } else {
+        setAuthResultPending(true);
       }
 
       await verifyOtp({
@@ -90,11 +98,12 @@ export function OtpScreen({ route, navigation }: Props) {
 
       if (purpose === "password-reset") {
         navigation.navigate("ResetPassword");
+      } else {
+        navigation.navigate("AuthResult", { result: "email-verified" });
       }
-    } catch (err) {
+    } catch {
       setPasswordResetPending(false);
-
-      console.error(err);
+      setAuthResultPending(false);
     }
   };
 
@@ -109,7 +118,7 @@ export function OtpScreen({ route, navigation }: Props) {
       setResendError(null);
       resetVerifyOtpError();
 
-      if (purpose === "signup") {
+      if (purpose === "email") {
         await resendSignupOtp(email);
       } else {
         await resendPasswordResetOtp(email);
@@ -153,113 +162,129 @@ export function OtpScreen({ route, navigation }: Props) {
 
   return (
     <AppScreen className="justify-center px-6">
-      <AuthHeader
-        icon={MailIcon}
-        title={
-          purpose === "signup"
-            ? t("auth.verifyAccount.accountVerifyTitle")
-            : t("auth.verifyAccount.passwordResetTitle")
-        }
-        subtitle={
-          purpose === "signup"
-            ? t("auth.verifyAccount.accountVerifySubtitle", { email })
-            : t("auth.verifyAccount.passwordResetSubtitle", { email })
-        }
-      />
-
-      <Box className="mt-8">
-        <Controller
-          control={control}
-          name="token"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <FormControl isInvalid={!!errors.token}>
-              <Box className="flex-row gap-2">
-                {Array.from({ length: 6 }, (_, index) => (
-                  <Input
-                    key={index}
-                    className={`h-12 flex-1 rounded-xl px-0 ${
-                      errors.token ? "border-destructive" : ""
-                    }`}
-                  >
-                    <InputField
-                      ref={(input) => {
-                        inputRefs.current[index] =
-                          input as FocusableInput | null;
-                      }}
-                      keyboardType="number-pad"
-                      maxLength={6 - index}
-                      value={value[index] ?? ""}
-                      style={{
-                        textAlign: "center",
-                        textAlignVertical: "center",
-                      }}
-                      onChangeText={(text) =>
-                        handleTokenChange(text, index, value, onChange)
-                      }
-                      onKeyPress={({ nativeEvent }) =>
-                        handleTokenKeyPress(
-                          index,
-                          nativeEvent.key,
-                          value[index] ?? "",
-                        )
-                      }
-                      onBlur={onBlur}
-                    />
-                  </Input>
-                ))}
-              </Box>
-
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText>
-                  {t(`auth.errors.validation.${errors.token?.message}`)}
-                </FormControlErrorText>
-              </FormControlError>
-            </FormControl>
-          )}
-        />
-      </Box>
-
-      {resent && (
-        <Box className="mt-4 flex-row items-center gap-2 rounded-xl bg-muted px-4 py-3">
-          <Text className="text-sm text-muted-foreground">
-            {t("auth.common.newCodeSent")}
-          </Text>
-        </Box>
-      )}
-
-      <Button
-        className="mt-6 h-12 w-full rounded-xl"
-        onPress={handleSubmit(onSubmit)}
-        disabled={isPending}
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {isPending && <ButtonSpinner className="text-primary-foreground" />}
-
-        <ButtonText>
-          {isPending
-            ? t("auth.verifyAccount.verifying")
-            : t("auth.verifyAccount.verify")}
-        </ButtonText>
-      </Button>
-
-      <AppErrorMessage className="mt-4" error={error ?? resendError} />
-
-      <Box className="mt-8 flex-row justify-center">
-        <Text className="text-sm text-muted-foreground">
-          {t("auth.verifyAccount.didNotReceiveCode")}
-        </Text>
-
-        <Pressable
-          onPress={handleResend}
-          disabled={isResending || resendCooldown > 0}
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            paddingVertical: 24,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text className="text-sm font-semibold text-foreground">
-            {resendCooldown > 0
-              ? `${t("auth.verifyAccount.resend")} (${resendCooldown}s)`
-              : t("auth.verifyAccount.resend")}
-          </Text>
-        </Pressable>
-      </Box>
+          <AuthHeader
+            icon={MailIcon}
+            title={
+              purpose === "email"
+                ? t("auth.verifyAccount.accountVerifyTitle")
+                : t("auth.verifyAccount.passwordResetTitle")
+            }
+            subtitle={
+              purpose === "email"
+                ? t("auth.verifyAccount.accountVerifySubtitle", { email })
+                : t("auth.verifyAccount.passwordResetSubtitle", { email })
+            }
+          />
+
+          <Box className="mt-8">
+            <Controller
+              control={control}
+              name="token"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormControl isInvalid={!!errors.token}>
+                  <Box className="flex-row gap-2">
+                    {Array.from({ length: 6 }, (_, index) => (
+                      <Input
+                        key={index}
+                        className={`h-12 flex-1 rounded-xl px-0 ${
+                          errors.token ? "border-destructive" : ""
+                        }`}
+                      >
+                        <InputField
+                          ref={(input) => {
+                            inputRefs.current[index] =
+                              input as FocusableInput | null;
+                          }}
+                          keyboardType="number-pad"
+                          maxLength={6 - index}
+                          value={value[index] ?? ""}
+                          style={{
+                            textAlign: "center",
+                            textAlignVertical: "center",
+                          }}
+                          onChangeText={(text) =>
+                            handleTokenChange(text, index, value, onChange)
+                          }
+                          onKeyPress={({ nativeEvent }) =>
+                            handleTokenKeyPress(
+                              index,
+                              nativeEvent.key,
+                              value[index] ?? "",
+                            )
+                          }
+                          onBlur={onBlur}
+                        />
+                      </Input>
+                    ))}
+                  </Box>
+
+                  <FormControlError>
+                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorText>
+                      {t(`auth.common.error.${errors.token?.message}`)}
+                    </FormControlErrorText>
+                  </FormControlError>
+                </FormControl>
+              )}
+            />
+          </Box>
+
+          {resent && (
+            <Box className="mt-4 flex-row items-center gap-2 rounded-xl bg-muted px-4 py-3">
+              <Text className="text-sm text-muted-foreground">
+                {t("auth.verifyAccount.newCodeSent")}
+              </Text>
+            </Box>
+          )}
+
+          <Button
+            className="mt-6 h-12 w-full rounded-xl"
+            onPress={handleSubmit(onSubmit)}
+            disabled={isPending}
+          >
+            {isPending && <ButtonSpinner className="text-primary-foreground" />}
+
+            <ButtonText>
+              {isPending
+                ? t("auth.verifyAccount.verifying")
+                : t("auth.verifyAccount.verify")}
+            </ButtonText>
+          </Button>
+
+          <AppErrorMessage className="mt-4" error={error ?? resendError} />
+
+          <Box className="mt-8 flex-row justify-center gap-2">
+            <Text className="text-sm text-muted-foreground">
+              {t("auth.verifyAccount.didNotReceiveCode")}
+            </Text>
+
+            <Pressable
+              onPress={handleResend}
+              disabled={isResending || resendCooldown > 0}
+            >
+              <Text className="text-sm font-semibold text-foreground">
+                {resendCooldown > 0
+                  ? `${t("auth.verifyAccount.resend")} (${resendCooldown}s)`
+                  : t("auth.verifyAccount.resend")}
+              </Text>
+            </Pressable>
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AppScreen>
   );
 }

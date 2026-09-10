@@ -12,9 +12,15 @@ export const tr = {
   errors: {
     unknown: "Bir şeyler yanlış gitti. Lütfen tekrar deneyin.",
     network: "İnternet bağlantınızı kontrol edip tekrar deneyin.",
+    timeout: "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",
     validation: "Lütfen girilen bilgileri kontrol edin.",
     database: "Bir veritabanı hatası oluştu. Lütfen tekrar deneyin.",
     api: "Sunucuyla iletişim sırasında bir hata oluştu.",
+    unauthorized: "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
+    forbidden: "Bu işlemi gerçekleştirme yetkiniz yok.",
+    notFound: "İstenen kaynak bulunamadı.",
+    rateLimited:
+      "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.",
     auth: {
       invalidCredentials: "E-posta veya şifre hatalı.",
       emailNotConfirmed:
@@ -23,6 +29,11 @@ export const tr = {
       invalidOtp: "Doğrulama kodu geçersiz.",
       otpExpired:
         "Doğrulama kodunun süresi doldu. Lütfen yeni bir kod isteyin.",
+    },
+    errorState: {
+      title: "Bir şeyler yanlış gitti",
+      message: "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
+      retry: "Tekrar Dene",
     },
   },
   auth: {
@@ -77,6 +88,13 @@ export const tr = {
       subtitle: "Lütfen yeni şifrenizi girin.",
       updating: "Güncelleniyor...",
       updatePassword: "Şifreyi Güncelle",
+      signIn: "Giriş Yap"
+    },
+    result: {
+      emailVerifiedTitle: "Hesabınız aktif edildi",
+      emailVerifiedMessage: "E-posta adresiniz doğrulandı. Artık hesabınıza giriş yapabilirsiniz.",
+      passwordResetTitle: "Şifreniz güncellendi",
+      passwordResetMessage: "Şifreniz başarıyla sıfırlandı. Yeni şifrenizle giriş yapabilirsiniz.",
       signIn: "Giriş Yap"
     },
     verifyAccount: {

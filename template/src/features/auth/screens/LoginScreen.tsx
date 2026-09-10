@@ -30,6 +30,7 @@ import {
   loginSchema,
 } from "@/features/auth/schemas/authSchemas";
 import { useLogin } from "@/features/auth/hooks/useLogin";
+import { useAuthFlowStore } from "@/stores/authFlowStore";
 
 import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
@@ -37,6 +38,9 @@ import { Pressable } from "@/components/ui/pressable";
 import { AppScreen } from "@/components/app/AppScreen";
 import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { useTranslation } from "react-i18next";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Platform } from "react-native";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
@@ -45,6 +49,10 @@ export function LoginScreen({ navigation }: Props) {
   const { t } = useTranslation();
 
   const { mutateAsync: login, isPending, error } = useLogin();
+
+  const setPasswordResetPending = useAuthFlowStore(
+    (state) => state.setPasswordResetPending,
+  );
 
   const {
     control,
@@ -60,142 +68,173 @@ export function LoginScreen({ navigation }: Props) {
 
   const onSubmit = async (values: LoginFormValues) => {
     try {
-
       await login({
         email: values.email,
         password: values.password,
       });
-    } catch (err) {
-      console.error(err);
+
+      // Clear any stale password-reset flag so a fresh login lands on Main.
+      setPasswordResetPending(false);
+    } catch {
+      return;
     }
   };
 
   return (
     <AppScreen className="justify-center px-6">
-      <AuthHeader
-        icon={LockIcon}
-        title={t("auth.login.title")}
-        subtitle={t("auth.login.subtitle")}
-      />
-
-      <Box className="mt-10 gap-4">
-        <Controller
-          control={control}
-          name="email"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <FormControl isInvalid={!!errors.email}>
-              <FormControlLabel>
-                <FormControlLabelText className="text-sm">
-                  {t("auth.common.email")}
-                </FormControlLabelText>
-              </FormControlLabel>
-
-              <Input
-                className={`h-12 rounded-xl px-3.5 ${
-                  errors.email ? "border-destructive" : ""
-                }`}
-              >
-                <InputIcon as={MailIcon} className="text-muted-foreground" />
-
-                <InputField
-                  placeholder="you@example.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              </Input>
-
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText>
-                  {t(`auth.common.error.${errors.email?.message ?? ""}`)}
-                </FormControlErrorText>
-              </FormControlError>
-            </FormControl>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="password"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <FormControl isInvalid={!!errors.password}>
-              <FormControlLabel>
-                <FormControlLabelText className="text-sm">
-                  {t("auth.common.password")}
-                </FormControlLabelText>
-              </FormControlLabel>
-
-              <Input
-                className={`h-12 rounded-xl px-3.5 ${
-                  errors.password ? "border-destructive" : ""
-                }`}
-              >
-                <InputIcon as={LockIcon} className="text-muted-foreground" />
-
-                <InputField
-                  placeholder="••••••••"
-                  secureTextEntry={!showPassword}
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-
-                <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
-                  <InputIcon
-                    as={showPassword ? EyeOffIcon : EyeIcon}
-                    className="text-muted-foreground"
-                  />
-                </InputSlot>
-              </Input>
-
-              <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
-                <FormControlErrorText>
-                  {t(`auth.common.error.${errors.password?.message ?? ""}`, {
-                    min: PASSWORD_MIN_LENGTH,
-                    max: PASSWORD_MAX_LENGTH,
-                  })}
-                </FormControlErrorText>
-              </FormControlError>
-            </FormControl>
-          )}
-        />
-
-        <Pressable
-          className="self-end"
-          onPress={() => navigation.navigate("ForgotPassword")}
-        >
-          <Text className="text-sm font-medium text-foreground">
-            {t("auth.login.forgotPassword")}
-          </Text>
-        </Pressable>
-      </Box>
-
-      <Button
-        className="mt-6 h-12 w-full rounded-xl"
-        onPress={handleSubmit(onSubmit)}
-        disabled={isPending}
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {isPending && <ButtonSpinner className="text-primary-foreground" />}
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: "center",
+            paddingVertical: 24,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <AuthHeader
+            icon={LockIcon}
+            title={t("auth.login.title")}
+            subtitle={t("auth.login.subtitle")}
+          />
 
-        <ButtonText>{isPending ? t("auth.login.signingIn") : t("auth.login.signIn")}</ButtonText>
-      </Button>
+          <Box className="mt-10 gap-4">
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormControl isInvalid={!!errors.email}>
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm">
+                      {t("auth.common.email")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
 
-      <AppErrorMessage className="mt-4" error={error} />
+                  <Input
+                    className={`h-12 rounded-xl px-3.5 ${
+                      errors.email ? "border-destructive" : ""
+                    }`}
+                  >
+                    <InputIcon
+                      as={MailIcon}
+                      className="text-muted-foreground"
+                    />
 
-      <Box className="mt-8 flex-row justify-center gap-2">
-        <Text className="text-sm text-muted-foreground">
-          {t("auth.login.noAccount")}
-        </Text>
+                    <InputField
+                      placeholder="you@example.com"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                    />
+                  </Input>
 
-        <Pressable onPress={() => navigation.navigate("Register")}>
-          <Text className="text-sm font-semibold text-foreground">{t("auth.login.signUp")}</Text>
-        </Pressable>
-      </Box>
+                  <FormControlError>
+                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorText>
+                      {t(`auth.common.error.${errors.email?.message ?? ""}`)}
+                    </FormControlErrorText>
+                  </FormControlError>
+                </FormControl>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <FormControl isInvalid={!!errors.password}>
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm">
+                      {t("auth.common.password")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+
+                  <Input
+                    className={`h-12 rounded-xl px-3.5 ${
+                      errors.password ? "border-destructive" : ""
+                    }`}
+                  >
+                    <InputIcon
+                      as={LockIcon}
+                      className="text-muted-foreground"
+                    />
+
+                    <InputField
+                      placeholder="••••••••"
+                      secureTextEntry={!showPassword}
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                    />
+
+                    <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
+                      <InputIcon
+                        as={showPassword ? EyeOffIcon : EyeIcon}
+                        className="text-muted-foreground"
+                      />
+                    </InputSlot>
+                  </Input>
+
+                  <FormControlError>
+                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorText>
+                      {t(
+                        `auth.common.error.${errors.password?.message ?? ""}`,
+                        {
+                          min: PASSWORD_MIN_LENGTH,
+                          max: PASSWORD_MAX_LENGTH,
+                        },
+                      )}
+                    </FormControlErrorText>
+                  </FormControlError>
+                </FormControl>
+              )}
+            />
+
+            <Pressable
+              className="self-end"
+              onPress={() => navigation.navigate("ForgotPassword")}
+            >
+              <Text className="text-sm font-medium text-foreground">
+                {t("auth.login.forgotPassword")}
+              </Text>
+            </Pressable>
+          </Box>
+
+          <Button
+            className="mt-6 h-12 w-full rounded-xl"
+            onPress={handleSubmit(onSubmit)}
+            disabled={isPending}
+          >
+            {isPending && <ButtonSpinner className="text-primary-foreground" />}
+
+            <ButtonText>
+              {isPending ? t("auth.login.signingIn") : t("auth.login.signIn")}
+            </ButtonText>
+          </Button>
+
+          <AppErrorMessage className="mt-4" error={error} />
+
+          <Box className="mt-8 flex-row justify-center gap-2">
+            <Text className="text-sm text-muted-foreground">
+              {t("auth.login.noAccount")}
+            </Text>
+
+            <Pressable onPress={() => navigation.navigate("Register")}>
+              <Text className="text-sm font-semibold text-foreground">
+                {t("auth.login.signUp")}
+              </Text>
+            </Pressable>
+          </Box>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AppScreen>
   );
 }

@@ -75,15 +75,16 @@ export function RegisterScreen({ navigation }: Props) {
         password: values.password,
       });
 
+      console.log("Registration successful:", session);
+
       if (!session) {
         navigation.navigate("OtpScreen", {
           email: values.email,
-          purpose: "signup",
+          purpose: "email",
         });
       }
-    } catch (err) {
-      // Handle error appropriately, e.g., show a toast or set a local error state
-      console.error(err);
+    } catch {
+      return;
     }
   };
 

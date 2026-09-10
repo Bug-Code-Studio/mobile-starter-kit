@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client";
+import { logError } from "@/lib/errors";
 import { Session, User } from "@supabase/supabase-js";
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 
@@ -17,12 +18,21 @@ export function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted) {
-        setSession(data.session);
-        setIsLoading(false);
-      }
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (mounted) {
+          setSession(data.session);
+        }
+      })
+      .catch((error) => {
+        logError(error, { source: "AuthProvider.getSession" });
+      })
+      .finally(() => {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      });
 
     const {
       data: { subscription },

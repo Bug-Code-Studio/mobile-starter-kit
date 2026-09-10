@@ -11,7 +11,7 @@ export function useVerifyOtp() {
     }: {
       email: string;
       token: string;
-      purpose: 'signup' | 'password-reset';
+      purpose: 'email' | 'password-reset';
     }) =>
       verifyEmailOtp(
         email,

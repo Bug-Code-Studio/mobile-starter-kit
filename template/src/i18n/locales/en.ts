@@ -12,9 +12,14 @@ export const en = {
   errors: {
     unknown: "Something went wrong. Please try again.",
     network: "Please check your internet connection and try again.",
+    timeout: "The request timed out. Please try again.",
     validation: "Please check the entered information.",
     database: "A database error occurred. Please try again.",
     api: "Something went wrong while communicating with the server.",
+    unauthorized: "Your session has expired. Please sign in again.",
+    forbidden: "You don't have permission to perform this action.",
+    notFound: "The requested resource could not be found.",
+    rateLimited: "Too many requests. Please wait a moment and try again.",
     auth: {
       invalidCredentials: "The email or password is incorrect.",
       emailNotConfirmed: "Please verify your email address before signing in.",
@@ -22,6 +27,11 @@ export const en = {
       invalidOtp: "The verification code is invalid.",
       otpExpired:
         "This verification code has expired. Please request a new one.",
+    },
+    errorState: {
+      title: "Something went wrong",
+      message: "An unexpected error occurred. Please try again.",
+      retry: "Try Again",
     },
   },
   auth: {
@@ -67,7 +77,7 @@ export const en = {
       signIn: "Sign In",
       alreadyHaveAccount: "Already have an account?",
     },
-    forgotPassword:{
+    forgotPassword: {
       title: "Forgot Password",
       subtitle: "Enter your email address to reset your password.",
       sendResetOtp: "Send Reset Code",
@@ -75,13 +85,19 @@ export const en = {
       sending: "Sending...",
       signIn: "Sign In",
     },
-    resetPassword:{
+    resetPassword: {
       title: "Reset Password",
       subtitle: "Enter your new password below.",
       updating: "Updating...",
       updatePassword: "Update Password",
       signIn: "Sign In",
-
+    },
+    result: {
+      emailVerifiedTitle: "Your account is active",
+      emailVerifiedMessage: "Your email has been verified. You can now sign in to your account.",
+      passwordResetTitle: "Your password has been updated",
+      passwordResetMessage: "Your password was reset successfully. You can sign in with your new password.",
+      signIn: "Sign In",
     },
     verifyAccount: {
       accountVerifyTitle: "Verify your account",
@@ -92,7 +108,7 @@ export const en = {
       resend: "Resend",
       newCodeSent: "A new code has been sent.",
       verifying: "Verifying...",
-      verify: "Verify"
-    }
+      verify: "Verify",
+    },
   },
 } satisfies Locale;

@@ -11,9 +11,12 @@ export type AuthStackParamList = {
     ForgotPassword: undefined;
     OtpScreen: {
         email: string;
-        purpose: 'signup' | 'password-reset';
+        purpose: 'email' | 'password-reset';
     },
-    ResetPassword: undefined
+    ResetPassword: undefined;
+    AuthResult: {
+        result: 'email-verified' | 'password-reset';
+    };
 };
 
 export type MainTabParamList = {

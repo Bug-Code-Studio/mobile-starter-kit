@@ -5,6 +5,7 @@ import { ForgotPasswordScreen } from "@/features/auth/screens/ForgotPasswordScre
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ResetPasswordScreen } from "@/features/auth/screens/ResetPasswordScreen";
 import { OtpScreen } from "@/features/auth/screens/OtpScreen";
+import { AuthResultScreen } from "@/features/auth/screens/AuthResultScreen";
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -16,6 +17,7 @@ export function AuthNavigator() {
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <Stack.Screen name="OtpScreen" component={OtpScreen} />
       <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+      <Stack.Screen name="AuthResult" component={AuthResultScreen} />
     </Stack.Navigator>
   );
 }

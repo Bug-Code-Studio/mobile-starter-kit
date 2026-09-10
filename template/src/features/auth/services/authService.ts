@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase/client';
 import { normalizeError } from '@/lib/errors';
+import { AppError } from '@/lib/errors/AppError';
+import { ERROR_CODES } from '@/lib/errors/error-codes';
 
 export async function signInWithEmail(
   email: string,
@@ -41,8 +43,19 @@ export async function signUpWithEmail(
         },
       });
 
+      console.log("signUpWithEmail data:", data);
+      console.log("signUpWithEmail error:", error);
+
     if (error) {
       throw normalizeError(error);
+    }
+
+    if (data.user?.identities?.length === 0) {
+      throw new AppError('An account with this email already exists.', {
+        code: ERROR_CODES.AUTH_USER_ALREADY_EXISTS,
+        messageKey: 'errors.auth.userAlreadyExists',
+        reportable: false,
+      });
     }
 
     return data;
@@ -71,11 +84,11 @@ export async function sendPasswordResetOtp(
 export async function verifyEmailOtp(
   email: string,
   token: string,
-  purpose: 'signup' | 'password-reset',
+  purpose: 'email' | 'password-reset',
 ) {
   try {
     const type =
-      purpose === 'signup'
+      purpose === 'email'
         ? 'email'
         : 'recovery';
 

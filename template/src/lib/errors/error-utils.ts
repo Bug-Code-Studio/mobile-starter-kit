@@ -8,79 +8,185 @@ type SupabaseErrorLike = {
   status?: number;
 };
 
-const SUPABASE_ERROR_MAP: Record<
-  string,
-  {
-    code: ErrorCode;
-  }
-> = {
+type ErrorClassification = {
+  code: ErrorCode;
+  retryable: boolean;
+  reportable: boolean;
+};
+
+const SUPABASE_ERROR_MAP: Record<string, ErrorClassification> = {
   invalid_credentials: {
     code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+    retryable: false,
+    reportable: false,
   },
 
   email_not_confirmed: {
     code: ERROR_CODES.AUTH_EMAIL_NOT_CONFIRMED,
+    retryable: false,
+    reportable: false,
   },
 
   user_already_exists: {
     code: ERROR_CODES.AUTH_USER_ALREADY_EXISTS,
+    retryable: false,
+    reportable: false,
   },
 
   otp_expired: {
     code: ERROR_CODES.AUTH_OTP_EXPIRED,
+    retryable: false,
+    reportable: false,
   },
 
   invalid_otp: {
     code: ERROR_CODES.AUTH_INVALID_OTP,
+    retryable: false,
+    reportable: false,
+  },
+
+  over_request_rate_limit: {
+    code: ERROR_CODES.RATE_LIMITED,
+    retryable: true,
+    reportable: true,
   },
 };
+
+// Substrings that reliably indicate a connectivity failure across platforms.
+const NETWORK_ERROR_HINTS = [
+  "network request failed",
+  "network error",
+  "fetch failed",
+  "failed to fetch",
+  "connection was lost",
+  "connection lost",
+  "connection appears to be offline",
+  "econnreset",
+  "econnrefused",
+  "enotfound",
+];
+
+const TIMEOUT_ERROR_HINTS = ["timeout", "timed out", "etimedout", "aborted"];
 
 export function normalizeError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error;
   }
 
+  const message = getErrorMessage(error);
+
+  if (matchesHint(message, TIMEOUT_ERROR_HINTS)) {
+    return buildError(ERROR_CODES.TIMEOUT, error, message, true, true);
+  }
+
+  if (matchesHint(message, NETWORK_ERROR_HINTS)) {
+    return buildError(ERROR_CODES.NETWORK, error, message, true, true);
+  }
+
   if (isSupabaseError(error)) {
-    const mapped = error.code ? SUPABASE_ERROR_MAP[error.code] : undefined;
+    const mapped =
+      typeof error.code === "string"
+        ? SUPABASE_ERROR_MAP[error.code]
+        : undefined;
 
     if (mapped) {
-      return new AppError(error.message ?? "Supabase error", {
-        code: mapped.code,
-        userMessage: ERROR_MESSAGE_KEYS[mapped.code],
-        cause: error,
-      });
+      return buildError(
+        mapped.code,
+        error,
+        error.message,
+        mapped.retryable,
+        mapped.reportable,
+      );
     }
 
-    if (error.status && error.status >= 500) {
-      return new AppError(error.message ?? "Database error", {
-        code: ERROR_CODES.DATABASE,
-        userMessage: ERROR_MESSAGE_KEYS[ERROR_CODES.DATABASE],
-        cause: error,
-      });
+    const byStatus = classifyByStatus(error.status);
+
+    if (byStatus) {
+      return buildError(
+        byStatus.code,
+        error,
+        error.message,
+        byStatus.retryable,
+        byStatus.reportable,
+      );
     }
   }
 
-  if (isNetworkError(error)) {
-    return new AppError("Network request failed", {
-      code: ERROR_CODES.NETWORK,
-      userMessage: ERROR_MESSAGE_KEYS[ERROR_CODES.NETWORK],
-      cause: error,
-    });
-  }
-
-  return new AppError(getErrorMessage(error), {
-    code: ERROR_CODES.UNKNOWN,
-    userMessage: ERROR_MESSAGE_KEYS[ERROR_CODES.UNKNOWN],
-    cause: error,
-  });
+  return buildError(ERROR_CODES.UNKNOWN, error, message, false, true);
 }
 
 export function getUserErrorKey(error: unknown): string {
-  return normalizeError(error).userMessage;
+  return normalizeError(error).messageKey;
+}
+
+export function resolveUserError(error: unknown): {
+  key: string;
+  params?: Record<string, string | number>;
+  retryable: boolean;
+} {
+  const appError = normalizeError(error);
+
+  return {
+    key: appError.messageKey,
+    params: appError.params,
+    retryable: appError.retryable,
+  };
 }
 
 export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;
+}
+
+function buildError(
+  code: ErrorCode,
+  cause: unknown,
+  message: string | undefined,
+  retryable: boolean,
+  reportable: boolean,
+): AppError {
+  return new AppError(message ?? ERROR_MESSAGE_KEYS[code], {
+    code,
+    messageKey: ERROR_MESSAGE_KEYS[code],
+    retryable,
+    reportable,
+    cause,
+  });
+}
+
+function classifyByStatus(status?: number): ErrorClassification | undefined {
+  if (!status) {
+    return undefined;
+  }
+
+  if (status === 401) {
+    return { code: ERROR_CODES.UNAUTHORIZED, retryable: false, reportable: false };
+  }
+
+  if (status === 403) {
+    return { code: ERROR_CODES.FORBIDDEN, retryable: false, reportable: false };
+  }
+
+  if (status === 404) {
+    return { code: ERROR_CODES.NOT_FOUND, retryable: false, reportable: false };
+  }
+
+  if (status === 408) {
+    return { code: ERROR_CODES.TIMEOUT, retryable: true, reportable: true };
+  }
+
+  if (status === 429) {
+    return { code: ERROR_CODES.RATE_LIMITED, retryable: true, reportable: true };
+  }
+
+  if (status >= 500) {
+    return { code: ERROR_CODES.DATABASE, retryable: true, reportable: true };
+  }
+
+  if (status >= 400) {
+    return { code: ERROR_CODES.API, retryable: false, reportable: false };
+  }
+
+  return undefined;
 }
 
 function isSupabaseError(error: unknown): error is SupabaseErrorLike {
@@ -90,15 +196,17 @@ function isSupabaseError(error: unknown): error is SupabaseErrorLike {
 
   const value = error as Record<string, unknown>;
 
-  return "message" in value || "code" in value || "status" in value;
+  return typeof value.code === "string" || typeof value.status === "number";
 }
 
-function isNetworkError(error: unknown): boolean {
-  if (error instanceof TypeError) {
-    return error.message.toLowerCase().includes("network");
+function matchesHint(message: string, hints: string[]): boolean {
+  if (!message) {
+    return false;
   }
 
-  return false;
+  const normalized = message.toLowerCase();
+
+  return hints.some((hint) => normalized.includes(hint));
 }
 
 function getErrorMessage(error: unknown): string {
@@ -114,5 +222,9 @@ function getErrorMessage(error: unknown): string {
     }
   }
 
-  return "Unknown error";
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "";
 }

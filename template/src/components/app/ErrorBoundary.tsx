@@ -4,6 +4,8 @@ import React, {
   type ReactNode,
 } from 'react';
 
+import { logError } from '@/lib/errors';
+
 import { ErrorState } from './ErrorState';
 
 type ErrorBoundaryProps = {
@@ -32,11 +34,10 @@ export class ErrorBoundary extends Component<
     error: Error,
     errorInfo: ErrorInfo,
   ) {
-    console.error(
-      '[ErrorBoundary]',
-      error,
-      errorInfo,
-    );
+    logError(error, {
+      source: 'ErrorBoundary',
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   handleRetry = () => {

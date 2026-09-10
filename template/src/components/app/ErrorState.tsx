@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Button, ButtonText } from '@/components/ui/button';
 import { Center } from '@/components/ui/center';
 import { Heading } from '@/components/ui/heading';
@@ -12,25 +14,27 @@ type ErrorStateProps = {
 };
 
 export function ErrorState({
-  title = 'Something went wrong',
-  message = 'Please try again.',
-  retryLabel = 'Try Again',
+  title,
+  message,
+  retryLabel,
   onRetry,
 }: ErrorStateProps) {
+  const { t } = useTranslation();
+
   return (
     <Center className="flex-1 px-6">
       <VStack space="md" className="items-center">
         <Heading size="xl" className="text-center">
-          {title}
+          {title ?? t('errors.errorState.title')}
         </Heading>
 
         <Text className="text-center text-typography-500">
-          {message}
+          {message ?? t('errors.errorState.message')}
         </Text>
 
         {onRetry ? (
           <Button onPress={onRetry} className="mt-2">
-            <ButtonText>{retryLabel}</ButtonText>
+            <ButtonText>{retryLabel ?? t('errors.errorState.retry')}</ButtonText>
           </Button>
         ) : null}
       </VStack>

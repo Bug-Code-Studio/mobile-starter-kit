@@ -10,15 +10,25 @@ export type Locale = {
   errors: {
     unknown: string;
     network: string;
+    timeout: string;
     validation: string;
     database: string;
     api: string;
+    unauthorized: string;
+    forbidden: string;
+    notFound: string;
+    rateLimited: string;
     auth: {
       invalidCredentials: string;
       emailNotConfirmed: string;
       userAlreadyExists: string;
       invalidOtp: string;
       otpExpired: string;
+    };
+    errorState: {
+      title: string;
+      message: string;
+      retry: string;
     };
   };
   auth: {
@@ -73,6 +83,13 @@ export type Locale = {
       subtitle: string;
       updating: string;
       updatePassword: string;
+      signIn: string;
+    };
+    result: {
+      emailVerifiedTitle: string;
+      emailVerifiedMessage: string;
+      passwordResetTitle: string;
+      passwordResetMessage: string;
       signIn: string;
     };
     verifyAccount: {

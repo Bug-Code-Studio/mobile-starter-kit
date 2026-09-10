@@ -1,6 +1,6 @@
 import { Alert, AlertIcon, AlertText } from '@/components/ui/alert';
 import { AlertCircleIcon } from '@/components/ui/icon';
-import { getUserErrorKey } from '@/lib/errors';
+import { resolveUserError } from '@/lib/errors';
 import { useTranslation } from 'react-i18next';
 
 type AppErrorMessageProps = {
@@ -18,10 +18,12 @@ export function AppErrorMessage({
     return null;
   }
 
+  const { key, params } = resolveUserError(error);
+
   return (
     <Alert className={className} variant="destructive">
       <AlertIcon as={AlertCircleIcon} />
-      <AlertText>{t(getUserErrorKey(error))}</AlertText>
+      <AlertText>{t(key, params)}</AlertText>
     </Alert>
   );
 }
