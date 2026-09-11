@@ -133,7 +133,16 @@ export function ResetPasswordScreen({ navigation }: Props) {
                       onBlur={onBlur}
                     />
 
-                    <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
+                    <InputSlot
+                      onPress={() => setShowPassword((prev) => !prev)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(
+                        showPassword
+                          ? "auth.common.hidePassword"
+                          : "auth.common.showPassword",
+                      )}
+                      accessibilityState={{ selected: showPassword }}
+                    >
                       <InputIcon
                         as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"
@@ -186,7 +195,16 @@ export function ResetPasswordScreen({ navigation }: Props) {
                       onBlur={onBlur}
                     />
 
-                    <InputSlot onPress={() => setShowConfirm((prev) => !prev)}>
+                    <InputSlot
+                      onPress={() => setShowConfirm((prev) => !prev)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(
+                        showConfirm
+                          ? "auth.common.hidePassword"
+                          : "auth.common.showPassword",
+                      )}
+                      accessibilityState={{ selected: showConfirm }}
+                    >
                       <InputIcon
                         as={showConfirm ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"

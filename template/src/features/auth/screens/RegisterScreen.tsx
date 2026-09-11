@@ -250,7 +250,16 @@ export function RegisterScreen({ navigation }: Props) {
                   onBlur={onBlur}
                 />
 
-                <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
+                <InputSlot
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(
+                    showPassword
+                      ? "auth.common.hidePassword"
+                      : "auth.common.showPassword",
+                  )}
+                  accessibilityState={{ selected: showPassword }}
+                >
                   <InputIcon
                     as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                     className="text-muted-foreground"
@@ -297,7 +306,16 @@ export function RegisterScreen({ navigation }: Props) {
                   onBlur={onBlur}
                 />
 
-                <InputSlot onPress={() => setShowConfirm((prev) => !prev)}>
+                <InputSlot
+                  onPress={() => setShowConfirm((prev) => !prev)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(
+                    showConfirm
+                      ? "auth.common.hidePassword"
+                      : "auth.common.showPassword",
+                  )}
+                  accessibilityState={{ selected: showConfirm }}
+                >
                   <InputIcon
                     as={showConfirm ? AuthEyeOffIcon : AuthEyeIcon}
                     className="text-muted-foreground"
@@ -343,7 +361,12 @@ export function RegisterScreen({ navigation }: Props) {
               {t("auth.register.alreadyHaveAccount")}
             </Text>
 
-            <Pressable onPress={() => navigation.goBack()}>
+            <Pressable
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.register.signIn")}
+              hitSlop={8}
+            >
               <Text className="text-sm font-semibold text-foreground">
                 {t("auth.register.signIn")}
               </Text>

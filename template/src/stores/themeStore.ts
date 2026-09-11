@@ -13,7 +13,7 @@ type ThemeState = {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      mode: "dark",
+      mode: "system",
       hasHydrated: false,
       setMode: (mode) => set({ mode }),
       resetMode: () => set({ mode: "system" }),

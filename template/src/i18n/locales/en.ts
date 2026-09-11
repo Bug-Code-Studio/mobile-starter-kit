@@ -42,6 +42,8 @@ export const en = {
       confirmPassword: "Confirm Password",
       name: "Name",
       surname: "Surname",
+      showPassword: "Show password",
+      hidePassword: "Hide password",
       error: {
         min_name_length: "Name must be at least {{min}} characters.",
         min_surname_length: "Surname must be at least {{min}} characters.",
@@ -106,6 +108,8 @@ export const en = {
       passwordResetSubtitle: "Enter the 6-digit code we sent to {{email}}.",
       didNotReceiveCode: "Didn't receive the code?",
       resend: "Resend",
+      resendHint: "Sends a new verification code to your email.",
+      codeInputLabel: "Digit {{index}} of {{total}}",
       newCodeSent: "A new code has been sent.",
       verifying: "Verifying...",
       verify: "Verify",

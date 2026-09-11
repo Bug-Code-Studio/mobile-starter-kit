@@ -44,6 +44,8 @@ export const tr = {
       confirmPassword: "Şifreyi Onayla",
       name: "İsim",
       surname: "Soyisim",
+      showPassword: "Şifreyi göster",
+      hidePassword: "Şifreyi gizle",
       error: {
         min_name_length: "İsim en az {{min}} karakter olmalıdır.",
         min_surname_length: "Soyisim en az {{min}} karakter olmalıdır.",
@@ -104,6 +106,8 @@ export const tr = {
       passwordResetSubtitle: "Lütfen {{email}} e-posta adresinize gönderilen 6 haneli kodu girin.",
       didNotReceiveCode: "Kodu almadınız mı?",
       resend: "Yeniden Gönder",
+      resendHint: "E-posta adresinize yeni bir doğrulama kodu gönderir.",
+      codeInputLabel: "{{total}} haneden {{index}}. hane",
       newCodeSent: "Yeni kod gönderildi.",
       verifying: "Doğrulanıyor...",
       verify: "Doğrula"

@@ -153,7 +153,12 @@ export function ForgotPasswordScreen({ navigation }: Props) {
               {t("auth.forgotPassword.rememberPassword")}
             </Text>
 
-            <Pressable onPress={() => navigation.goBack()}>
+            <Pressable
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.forgotPassword.signIn")}
+              hitSlop={8}
+            >
               <Text className="text-sm font-semibold text-foreground">
                 {t("auth.forgotPassword.signIn")}
               </Text>

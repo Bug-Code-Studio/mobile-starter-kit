@@ -39,6 +39,8 @@ export type Locale = {
       newPassword: string;
       name: string;
       surname: string;
+      showPassword: string;
+      hidePassword: string;
       error: {
         min_name_length: string;
         min_surname_length: string;
@@ -97,6 +99,8 @@ export type Locale = {
       accountVerifySubtitle: string;
       didNotReceiveCode: string;
       resend: string;
+      resendHint: string;
+      codeInputLabel: string;
       newCodeSent: string;
       verifying: string;
       passwordResetTitle: string;

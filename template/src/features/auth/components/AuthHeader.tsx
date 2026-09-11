@@ -23,14 +23,21 @@ export function AuthHeader({
 }: AuthHeaderProps) {
   return (
     <Box className="items-center">
-      <Box className="h-16 w-16 items-center justify-center rounded-2xl border border-border bg-muted">
+      <Box
+        accessible={false}
+        importantForAccessibility="no-hide-descendants"
+        className="h-16 w-16 items-center justify-center rounded-2xl border border-border bg-muted"
+      >
         {(() => {
           const HeaderIcon = icon;
           return <HeaderIcon size={32} color="#171717" />;
         })()}
       </Box>
 
-      <Text className="mt-5 text-center text-3xl font-bold text-foreground">
+      <Text
+        accessibilityRole="header"
+        className="mt-5 text-center text-3xl font-bold text-foreground"
+      >
         {title}
       </Text>
 

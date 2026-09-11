@@ -216,6 +216,10 @@ export function OtpScreen({ route, navigation }: Props) {
                             inputRefs.current[index] =
                               input as FocusableInput | null;
                           }}
+                          accessibilityLabel={t(
+                            "auth.verifyAccount.codeInputLabel",
+                            { index: index + 1, total: 6 },
+                          )}
                           keyboardType="number-pad"
                           maxLength={6 - index}
                           value={value[index] ?? ""}
@@ -251,7 +255,11 @@ export function OtpScreen({ route, navigation }: Props) {
           </Box>
 
           {resent && (
-            <Box className="mt-4 flex-row items-center gap-2 rounded-xl bg-muted px-4 py-3">
+            <Box
+              accessibilityLiveRegion="polite"
+              accessibilityRole="alert"
+              className="mt-4 flex-row items-center gap-2 rounded-xl bg-muted px-4 py-3"
+            >
               <Text className="text-sm text-muted-foreground">
                 {t("auth.verifyAccount.newCodeSent")}
               </Text>
@@ -282,6 +290,13 @@ export function OtpScreen({ route, navigation }: Props) {
             <Pressable
               onPress={handleResend}
               disabled={isResending || resendCooldown > 0}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.verifyAccount.resend")}
+              accessibilityHint={t("auth.verifyAccount.resendHint")}
+              accessibilityState={{
+                disabled: isResending || resendCooldown > 0,
+              }}
+              hitSlop={8}
             >
               <Text className="text-sm font-semibold text-foreground">
                 {resendCooldown > 0

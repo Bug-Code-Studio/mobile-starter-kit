@@ -26,9 +26,18 @@ export function AuthResultScreen({ route, navigation }: Props) {
   return (
     <AppScreen className="justify-center px-6">
       <Box className="items-center">
-        <Ionicons name="checkmark-circle-outline" size={80} color="#171717" />
+        <Ionicons
+          name="checkmark-circle-outline"
+          size={80}
+          color="#171717"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
 
-        <Text className="mt-6 text-center text-2xl font-semibold text-foreground">
+        <Text
+          accessibilityRole="header"
+          className="mt-6 text-center text-2xl font-semibold text-foreground"
+        >
           {t(
             isEmailVerified
               ? "auth.result.emailVerifiedTitle"

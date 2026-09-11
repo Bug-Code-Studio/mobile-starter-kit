@@ -174,7 +174,16 @@ export function LoginScreen({ navigation }: Props) {
                       onBlur={onBlur}
                     />
 
-                    <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
+                    <InputSlot
+                      onPress={() => setShowPassword((prev) => !prev)}
+                      accessibilityRole="button"
+                      accessibilityLabel={t(
+                        showPassword
+                          ? "auth.common.hidePassword"
+                          : "auth.common.showPassword",
+                      )}
+                      accessibilityState={{ selected: showPassword }}
+                    >
                       <InputIcon
                         as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"
@@ -201,6 +210,9 @@ export function LoginScreen({ navigation }: Props) {
             <Pressable
               className="self-end"
               onPress={() => navigation.navigate("ForgotPassword")}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.login.forgotPassword")}
+              hitSlop={8}
             >
               <Text className="text-sm font-medium text-foreground">
                 {t("auth.login.forgotPassword")}
@@ -227,7 +239,12 @@ export function LoginScreen({ navigation }: Props) {
               {t("auth.login.noAccount")}
             </Text>
 
-            <Pressable onPress={() => navigation.navigate("Register")}>
+            <Pressable
+              onPress={() => navigation.navigate("Register")}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.login.signUp")}
+              hitSlop={8}
+            >
               <Text className="text-sm font-semibold text-foreground">
                 {t("auth.login.signUp")}
               </Text>

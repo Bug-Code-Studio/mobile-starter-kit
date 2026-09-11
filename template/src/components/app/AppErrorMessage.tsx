@@ -21,7 +21,12 @@ export function AppErrorMessage({
   const { key, params } = resolveUserError(error);
 
   return (
-    <Alert className={className} variant="destructive">
+    <Alert
+      className={className}
+      variant="destructive"
+      accessibilityLiveRegion="assertive"
+      accessibilityRole="alert"
+    >
       <AlertIcon as={AlertCircleIcon} />
       <AlertText>{t(key, params)}</AlertText>
     </Alert>
