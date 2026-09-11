@@ -1,16 +1,18 @@
 import { useTranslation } from 'react-i18next';
 
-import { Button, ButtonText } from '@/components/ui/button';
 import { Center } from '@/components/ui/center';
 import { Heading } from '@/components/ui/heading';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+
+import { RetryButton } from './RetryButton';
 
 type ErrorStateProps = {
   title?: string;
   message?: string;
   retryLabel?: string;
   onRetry?: () => void;
+  retryLoading?: boolean;
 };
 
 export function ErrorState({
@@ -18,6 +20,7 @@ export function ErrorState({
   message,
   retryLabel,
   onRetry,
+  retryLoading = false,
 }: ErrorStateProps) {
   const { t } = useTranslation();
 
@@ -33,9 +36,11 @@ export function ErrorState({
         </Text>
 
         {onRetry ? (
-          <Button onPress={onRetry} className="mt-2">
-            <ButtonText>{retryLabel ?? t('errors.errorState.retry')}</ButtonText>
-          </Button>
+          <RetryButton
+            onPress={onRetry}
+            label={retryLabel ?? t('errors.errorState.retry')}
+            loading={retryLoading}
+          />
         ) : null}
       </VStack>
     </Center>

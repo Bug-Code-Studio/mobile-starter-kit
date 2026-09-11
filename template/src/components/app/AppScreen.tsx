@@ -15,13 +15,17 @@ type ScreenProps = PropsWithChildren<
 
 export function AppScreen({
   children,
-  edges = ['top', 'bottom'],
+  edges,
   className,
   ...props
 }: ScreenProps) {
   return (
-    <SafeAreaView edges={edges} style={{ flex: 1 }}>
-      <Box className={`flex-1 ${className ?? ''}`} {...props}>
+    <SafeAreaView
+      edges={edges}
+      className="flex-1 bg-background"
+      style={{ flex: 1 }}
+    >
+      <Box className={`flex-1 bg-background ${className ?? ''}`} {...props}>
         {children}
       </Box>
     </SafeAreaView>

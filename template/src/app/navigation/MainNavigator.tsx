@@ -1,13 +1,15 @@
 import { MainTabParamList } from "@/app/navigation/types";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { HomeScreen } from "@/features/home/screens/HomeScreen";
+import { mainTabConfig } from "@/app/navigation/tab-config";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const MainNavigator = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} />
+      {mainTabConfig.map((tab) => (
+        <Tab.Screen key={tab.name} {...tab} />
+      ))}
     </Tab.Navigator>
   );
 };

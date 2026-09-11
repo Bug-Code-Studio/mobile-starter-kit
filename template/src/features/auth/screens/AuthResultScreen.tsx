@@ -1,10 +1,10 @@
 import { useTranslation } from "react-i18next";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 
 import type { AuthStackParamList } from "@/app/navigation/types";
 import { AppScreen } from "@/components/app/AppScreen";
 import { Button, ButtonText } from "@/components/ui/button";
-import { CheckCircleIcon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
@@ -20,17 +20,13 @@ export function AuthResultScreen({ route, navigation }: Props) {
 
   const handleContinue = () => {
     setAuthResultPending(false);
+    navigation.navigate("Login");
   };
 
   return (
     <AppScreen className="justify-center px-6">
       <Box className="items-center">
-        <CheckCircleIcon
-          width={80}
-          height={80}
-          fill="none"
-          className="text-success"
-        />
+        <Ionicons name="checkmark-circle-outline" size={80} color="#171717" />
 
         <Text className="mt-6 text-center text-2xl font-semibold text-foreground">
           {t(

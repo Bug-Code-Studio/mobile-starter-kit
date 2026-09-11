@@ -8,13 +8,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AppScreen } from "@/components/app/AppScreen";
 import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
-import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-} from "@/components/ui/icon";
+  AuthAlertIcon,
+  AuthEyeIcon,
+  AuthEyeOffIcon,
+  AuthLockIcon,
+} from "@/features/auth/components/AuthIcons";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import {
   FormControl,
   FormControlError,
@@ -30,7 +30,7 @@ import {
   resetPasswordSchema,
 } from "@/features/auth/schemas/authSchemas";
 import { useResetPassword } from "@/features/auth/hooks/useResetPassword";
-import { signOut } from "@/features/auth/services/authService";
+import { useSignOut } from "@/features/auth/hooks/useSignOut";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
@@ -47,6 +47,8 @@ export function ResetPasswordScreen({ navigation }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const { mutateAsync: resetPassword, isPending, error } = useResetPassword();
+
+  const { mutateAsync: signOut } = useSignOut();
 
   const setPasswordResetPending = useAuthFlowStore(
     (state) => state.setPasswordResetPending,
@@ -96,7 +98,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <AuthHeader
-            icon={LockIcon}
+            icon={AuthLockIcon}
             title={t("auth.resetPassword.title")}
             subtitle={t("auth.resetPassword.subtitle")}
           />
@@ -119,7 +121,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
                     }`}
                   >
                     <InputIcon
-                      as={LockIcon}
+                      as={AuthLockIcon}
                       className="text-muted-foreground"
                     />
 
@@ -133,14 +135,14 @@ export function ResetPasswordScreen({ navigation }: Props) {
 
                     <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
                       <InputIcon
-                        as={showPassword ? EyeOffIcon : EyeIcon}
+                        as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"
                       />
                     </InputSlot>
                   </Input>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(
                         `auth.common.error.${errors.password?.message ?? ""}`,
@@ -172,7 +174,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
                     }`}
                   >
                     <InputIcon
-                      as={LockIcon}
+                      as={AuthLockIcon}
                       className="text-muted-foreground"
                     />
 
@@ -186,14 +188,14 @@ export function ResetPasswordScreen({ navigation }: Props) {
 
                     <InputSlot onPress={() => setShowConfirm((prev) => !prev)}>
                       <InputIcon
-                        as={showConfirm ? EyeOffIcon : EyeIcon}
+                        as={showConfirm ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"
                       />
                     </InputSlot>
                   </Input>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(
                         `auth.common.error.${errors.confirmPassword?.message ?? ""}`,

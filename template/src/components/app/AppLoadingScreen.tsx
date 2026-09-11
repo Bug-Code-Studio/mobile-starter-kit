@@ -1,13 +1,10 @@
-import { Center } from "@/components/ui/center";
-import { AppScreen } from "@/components/app/AppScreen";
-import { ActivityIndicator } from "react-native";
+import { AppScreen } from '@/components/app/AppScreen';
+import { LoadingState } from '@/components/app/states/LoadingState';
 
 export function AppLoadingScreen() {
   return (
-    <AppScreen className="flex-1">
-      <Center>
-        <ActivityIndicator size="large" />
-      </Center>
+    <AppScreen className="flex-1 justify-center">
+      <LoadingState />
     </AppScreen>
   );
 }

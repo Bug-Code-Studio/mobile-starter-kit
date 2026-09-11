@@ -6,7 +6,7 @@ import React, {
 
 import { logError } from '@/lib/errors';
 
-import { ErrorState } from './ErrorState';
+import { ErrorState } from './states/ErrorState';
 
 type ErrorBoundaryProps = {
   children: ReactNode;

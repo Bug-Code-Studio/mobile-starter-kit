@@ -6,13 +6,13 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AppScreen } from "@/components/app/AppScreen";
 import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import {
+  AuthAlertIcon,
+  AuthEmailIcon,
+  AuthHelpIcon,
+} from "@/features/auth/components/AuthIcons";
 import { Input, InputField, InputIcon } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import {
-  AlertCircleIcon,
-  HelpCircleIcon,
-  MailIcon,
-} from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -83,7 +83,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <AuthHeader
-            icon={HelpCircleIcon}
+            icon={AuthHelpIcon}
             title={t("auth.forgotPassword.title")}
             subtitle={t("auth.forgotPassword.subtitle")}
           />
@@ -106,7 +106,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
                     }`}
                   >
                     <InputIcon
-                      as={MailIcon}
+                      as={AuthEmailIcon}
                       className="text-muted-foreground"
                     />
 
@@ -122,7 +122,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
                   </Input>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(`auth.common.error.${errors.email?.message ?? ""}`)}
                     </FormControlErrorText>

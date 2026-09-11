@@ -7,9 +7,12 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AppScreen } from "@/components/app/AppScreen";
 import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import {
+  AuthAlertIcon,
+  AuthEmailIcon,
+} from "@/features/auth/components/AuthIcons";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import { AlertCircleIcon, MailIcon } from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -19,10 +22,9 @@ import {
 import type { AuthStackParamList } from "@/app/navigation/types";
 import { OtpFormValues, otpSchema } from "@/features/auth/schemas/authSchemas";
 import { useVerifyOtp } from "@/features/auth/hooks/useVerifyOtp";
-import {
-  resendSignupOtp,
-  resendPasswordResetOtp,
-} from "@/features/auth/services/authService";
+import { useResendSignupOtp } from "@/features/auth/hooks/useResendSignupOtp";
+import { useResendPasswordResetOtp } from "@/features/auth/hooks/useResendPasswordResetOtp";
+import { useSignOut } from "@/features/auth/hooks/useSignOut";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
@@ -64,6 +66,10 @@ export function OtpScreen({ route, navigation }: Props) {
     reset: resetVerifyOtpError,
   } = useVerifyOtp();
 
+  const { mutateAsync: resendSignupOtp } = useResendSignupOtp();
+  const { mutateAsync: resendPasswordResetOtp } = useResendPasswordResetOtp();
+  const { mutateAsync: signOut } = useSignOut();
+
   const setPasswordResetPending = useAuthFlowStore(
     (state) => state.setPasswordResetPending,
   );
@@ -99,6 +105,7 @@ export function OtpScreen({ route, navigation }: Props) {
       if (purpose === "password-reset") {
         navigation.navigate("ResetPassword");
       } else {
+        await signOut();
         navigation.navigate("AuthResult", { result: "email-verified" });
       }
     } catch {
@@ -177,7 +184,7 @@ export function OtpScreen({ route, navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <AuthHeader
-            icon={MailIcon}
+            icon={AuthEmailIcon}
             title={
               purpose === "email"
                 ? t("auth.verifyAccount.accountVerifyTitle")
@@ -233,7 +240,7 @@ export function OtpScreen({ route, navigation }: Props) {
                   </Box>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(`auth.common.error.${errors.token?.message}`)}
                     </FormControlErrorText>

@@ -6,16 +6,16 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AppScreen } from "@/components/app/AppScreen";
 import { AppErrorMessage } from "@/components/app/AppErrorMessage";
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import {
+  AuthAlertIcon,
+  AuthEmailIcon,
+  AuthEyeIcon,
+  AuthEyeOffIcon,
+  AuthLockIcon,
+  AuthUnlockIcon,
+} from "@/features/auth/components/AuthIcons";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-  MailIcon,
-  UnlockIcon,
-} from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -105,7 +105,7 @@ export function RegisterScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <AuthHeader
-            icon={UnlockIcon}
+            icon={AuthUnlockIcon}
             title={t("auth.register.title")}
             subtitle={t("auth.register.subtitle")}
           />
@@ -137,7 +137,7 @@ export function RegisterScreen({ navigation }: Props) {
                 </Input>
 
                 <FormControlError>
-                  <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorIcon as={AuthAlertIcon} />
                   <FormControlErrorText>
                     {t(`auth.common.error.${errors.name?.message ?? ""}`, {
                       min: NAME_MIN_LENGTH,
@@ -173,7 +173,7 @@ export function RegisterScreen({ navigation }: Props) {
                 </Input>
 
                 <FormControlError>
-                  <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorIcon as={AuthAlertIcon} />
                   <FormControlErrorText>
                     {t(`auth.common.error.${errors.surname?.message ?? ""}`, {
                       min: NAME_MIN_LENGTH,
@@ -201,7 +201,7 @@ export function RegisterScreen({ navigation }: Props) {
                   errors.email ? "border-destructive" : ""
                 }`}
               >
-                <InputIcon as={MailIcon} className="text-muted-foreground" />
+                <InputIcon as={AuthEmailIcon} className="text-muted-foreground" />
 
                 <InputField
                   placeholder="you@example.com"
@@ -215,7 +215,7 @@ export function RegisterScreen({ navigation }: Props) {
               </Input>
 
               <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
+                <FormControlErrorIcon as={AuthAlertIcon} />
                 <FormControlErrorText>
                   {t(`auth.common.error.${errors.email?.message ?? ""}`)}
                 </FormControlErrorText>
@@ -240,7 +240,7 @@ export function RegisterScreen({ navigation }: Props) {
                   errors.password ? "border-destructive" : ""
                 }`}
               >
-                <InputIcon as={LockIcon} className="text-muted-foreground" />
+                <InputIcon as={AuthLockIcon} className="text-muted-foreground" />
 
                 <InputField
                   placeholder="••••••••"
@@ -252,14 +252,14 @@ export function RegisterScreen({ navigation }: Props) {
 
                 <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
                   <InputIcon
-                    as={showPassword ? EyeOffIcon : EyeIcon}
+                    as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                     className="text-muted-foreground"
                   />
                 </InputSlot>
               </Input>
 
               <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorIcon as={AuthAlertIcon} />
                 <FormControlErrorText>
                     {t(`auth.common.error.${errors.password?.message ?? ""}`, {
                       min: PASSWORD_MIN_LENGTH,
@@ -287,7 +287,7 @@ export function RegisterScreen({ navigation }: Props) {
                   errors.confirmPassword ? "border-destructive" : ""
                 }`}
               >
-                <InputIcon as={LockIcon} className="text-muted-foreground" />
+                <InputIcon as={AuthLockIcon} className="text-muted-foreground" />
 
                 <InputField
                   placeholder="••••••••"
@@ -299,14 +299,14 @@ export function RegisterScreen({ navigation }: Props) {
 
                 <InputSlot onPress={() => setShowConfirm((prev) => !prev)}>
                   <InputIcon
-                    as={showConfirm ? EyeOffIcon : EyeIcon}
+                    as={showConfirm ? AuthEyeOffIcon : AuthEyeIcon}
                     className="text-muted-foreground"
                   />
                 </InputSlot>
               </Input>
 
               <FormControlError>
-                <FormControlErrorIcon as={AlertCircleIcon} />
+                  <FormControlErrorIcon as={AuthAlertIcon} />
                 <FormControlErrorText>
                   {t(
                     `auth.common.error.${errors.confirmPassword?.message ?? ""}`,

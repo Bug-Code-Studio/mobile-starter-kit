@@ -4,15 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { AuthHeader } from "@/features/auth/components/AuthHeader";
+import {
+  AuthAlertIcon,
+  AuthEmailIcon,
+  AuthEyeIcon,
+  AuthEyeOffIcon,
+  AuthLockIcon,
+} from "@/features/auth/components/AuthIcons";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
-import {
-  AlertCircleIcon,
-  EyeIcon,
-  EyeOffIcon,
-  LockIcon,
-  MailIcon,
-} from "@/components/ui/icon";
 import {
   FormControl,
   FormControlError,
@@ -80,6 +80,7 @@ export function LoginScreen({ navigation }: Props) {
     }
   };
 
+  
   return (
     <AppScreen className="justify-center px-6">
       <KeyboardAvoidingView
@@ -97,7 +98,7 @@ export function LoginScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <AuthHeader
-            icon={LockIcon}
+            icon={AuthLockIcon}
             title={t("auth.login.title")}
             subtitle={t("auth.login.subtitle")}
           />
@@ -120,7 +121,7 @@ export function LoginScreen({ navigation }: Props) {
                     }`}
                   >
                     <InputIcon
-                      as={MailIcon}
+                      as={AuthEmailIcon}
                       className="text-muted-foreground"
                     />
 
@@ -128,7 +129,6 @@ export function LoginScreen({ navigation }: Props) {
                       placeholder="you@example.com"
                       keyboardType="email-address"
                       autoCapitalize="none"
-                      autoCorrect={false}
                       value={value}
                       onChangeText={onChange}
                       onBlur={onBlur}
@@ -136,7 +136,7 @@ export function LoginScreen({ navigation }: Props) {
                   </Input>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(`auth.common.error.${errors.email?.message ?? ""}`)}
                     </FormControlErrorText>
@@ -162,7 +162,7 @@ export function LoginScreen({ navigation }: Props) {
                     }`}
                   >
                     <InputIcon
-                      as={LockIcon}
+                      as={AuthLockIcon}
                       className="text-muted-foreground"
                     />
 
@@ -176,14 +176,14 @@ export function LoginScreen({ navigation }: Props) {
 
                     <InputSlot onPress={() => setShowPassword((prev) => !prev)}>
                       <InputIcon
-                        as={showPassword ? EyeOffIcon : EyeIcon}
+                        as={showPassword ? AuthEyeOffIcon : AuthEyeIcon}
                         className="text-muted-foreground"
                       />
                     </InputSlot>
                   </Input>
 
                   <FormControlError>
-                    <FormControlErrorIcon as={AlertCircleIcon} />
+                    <FormControlErrorIcon as={AuthAlertIcon} />
                     <FormControlErrorText>
                       {t(
                         `auth.common.error.${errors.password?.message ?? ""}`,

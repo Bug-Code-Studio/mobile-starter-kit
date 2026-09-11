@@ -65,7 +65,7 @@ export const tr = {
       noAccount: "Hesabınız yok mu?",
       signUp: "Kayıt Ol",
       signingIn: "Giriş yapılıyor...",
-      signIn: "Giriş Yap"
+      signIn: "Giriş Yap",
     },
     register: {
       title: "Hesap Oluştur",

@@ -1,6 +1,6 @@
 export const env = {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
-    supabaseKey: process.env.EXPO_PUBLIC_SUPABASE_KEY
+     supabaseKey: process.env.EXPO_PUBLIC_SUPABASE_KEY,
 } as const;
 
 if(!env.supabaseUrl) {

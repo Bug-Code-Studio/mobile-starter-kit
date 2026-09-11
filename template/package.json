@@ -4,6 +4,7 @@
   "main": "index.ts",
   "dependencies": {
     "@expo/html-elements": "^0.12.5",
+    "@expo/vector-icons": "^15.0.2",
     "@gluestack-ui/core": "^5.0.15",
     "@gluestack-ui/utils": "^5.0.6",
     "@hookform/resolvers": "^5.9.1",
@@ -42,13 +43,15 @@
     "@types/react": "~19.2.2",
     "babel-plugin-module-resolver": "^5.0.3",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.20.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "theme:build": "tsx scripts/generate-theme-css.ts"
   },
   "private": true,
   "overrides": {
