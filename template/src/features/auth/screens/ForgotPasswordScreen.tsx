@@ -28,6 +28,10 @@ import {
   forgotPasswordSchema,
 } from "@/features/auth/schemas/authSchemas";
 import { useForgotPassword } from "@/features/auth/hooks/useForgotPassword";
+import {
+  RESEND_COOLDOWN_SECONDS,
+  useOtpCooldownStore,
+} from "@/stores/otpCooldownStore";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
@@ -41,6 +45,8 @@ export function ForgotPasswordScreen({ navigation }: Props) {
   const { t } = useTranslation();
 
   const { mutateAsync: sendResetOtp, isPending, error } = useForgotPassword();
+
+  const startCooldown = useOtpCooldownStore((state) => state.startCooldown);
 
   const {
     control,
@@ -56,6 +62,11 @@ export function ForgotPasswordScreen({ navigation }: Props) {
   const onSubmit = async (values: ForgotPasswordFormValues) => {
     try {
       await sendResetOtp(values.email);
+
+      startCooldown(
+        `password-reset:${values.email}`,
+        RESEND_COOLDOWN_SECONDS,
+      );
 
       navigation.navigate("OtpScreen", {
         email: values.email,

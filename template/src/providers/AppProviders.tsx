@@ -4,9 +4,13 @@ import { useColorScheme } from "react-native";
 
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { AppLoadingScreen } from "@/components/app/AppLoadingScreen";
+import { OfflineBanner } from "@/components/app/OfflineBanner";
 import { QueryProvider } from "@/providers/QueryProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
+import { setupNetworkManagers } from "@/lib/network";
 import { useThemeStore } from "@/stores/themeStore";
+
+setupNetworkManagers();
 
 export function AppProviders({ children }: PropsWithChildren) {
   const mode = useThemeStore((state) => state.mode);
@@ -21,6 +25,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         <AuthProvider>
           {hasHydrated ? children : <AppLoadingScreen />}
         </AuthProvider>
+        <OfflineBanner />
       </QueryProvider>
     </GluestackUIProvider>
   );

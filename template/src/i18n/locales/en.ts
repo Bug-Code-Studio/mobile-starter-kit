@@ -24,9 +24,15 @@ export const en = {
       invalidCredentials: "The email or password is incorrect.",
       emailNotConfirmed: "Please verify your email address before signing in.",
       userAlreadyExists: "An account with this email already exists.",
+      emailAlreadyVerified: "This email is already verified. Please sign in.",
       invalidOtp: "The verification code is invalid.",
       otpExpired:
         "This verification code has expired. Please request a new one.",
+      weakPassword: "Please choose a stronger password.",
+      samePassword:
+        "Your new password must be different from your current password.",
+      signupDisabled: "New account registration is currently disabled.",
+      sessionExpired: "Your session has expired. Please sign in again.",
     },
     errorState: {
       title: "Something went wrong",
@@ -113,6 +119,12 @@ export const en = {
       newCodeSent: "A new code has been sent.",
       verifying: "Verifying...",
       verify: "Verify",
+    },
+  },
+  network: {
+    offline: {
+      title: "You're offline",
+      message: "No internet connection.",
     },
   },
 } satisfies Locale;

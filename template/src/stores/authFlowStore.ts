@@ -2,30 +2,28 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export type AuthFlowPhase = "idle" | "verifying-email" | "resetting-password";
+
 type AuthFlowState = {
-  passwordResetPending: boolean;
-  authResultPending: boolean;
+  flow: AuthFlowPhase;
   hasHydrated: boolean;
-  setPasswordResetPending: (value: boolean) => void;
-  setAuthResultPending: (value: boolean) => void;
+  setFlow: (flow: AuthFlowPhase) => void;
 };
 
 export const useAuthFlowStore = create<AuthFlowState>()(
   persist(
     (set) => ({
-      passwordResetPending: false,
-      authResultPending: false,
+      flow: "idle",
       hasHydrated: false,
-      setPasswordResetPending: (value: boolean) =>
-        set({ passwordResetPending: value }),
-      setAuthResultPending: (value: boolean) =>
-        set({ authResultPending: value }),
+      setFlow: (flow: AuthFlowPhase) => set({ flow }),
     }),
     {
       name: "auth-flow-storage",
       storage: createJSONStorage(() => AsyncStorage),
+      // Only the recovery flow must survive a restart; other phases start fresh.
       partialize: (state) => ({
-        passwordResetPending: state.passwordResetPending,
+        flow:
+          state.flow === "resetting-password" ? "resetting-password" : "idle",
       }),
       onRehydrateStorage: () => {
         return () => {

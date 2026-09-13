@@ -26,9 +26,15 @@ export const tr = {
       emailNotConfirmed:
         "Lütfen giriş yapmadan önce e-posta adresinizi doğrulayın.",
       userAlreadyExists: "Bu e-posta adresiyle zaten bir hesap bulunuyor.",
+      emailAlreadyVerified:
+        "Bu e-posta zaten doğrulanmış. Lütfen giriş yapın.",
       invalidOtp: "Doğrulama kodu geçersiz.",
       otpExpired:
         "Doğrulama kodunun süresi doldu. Lütfen yeni bir kod isteyin.",
+      weakPassword: "Lütfen daha güçlü bir şifre seçin.",
+      samePassword: "Yeni şifreniz mevcut şifrenizden farklı olmalıdır.",
+      signupDisabled: "Yeni hesap kaydı şu anda devre dışı.",
+      sessionExpired: "Oturumunuzun süresi doldu. Lütfen tekrar giriş yapın.",
     },
     errorState: {
       title: "Bir şeyler yanlış gitti",
@@ -112,5 +118,11 @@ export const tr = {
       verifying: "Doğrulanıyor...",
       verify: "Doğrula"
     }
+  },
+  network: {
+    offline: {
+      title: "Çevrimdışısınız",
+      message: "İnternet bağlantısı yok.",
+    },
   },
 } satisfies Locale;

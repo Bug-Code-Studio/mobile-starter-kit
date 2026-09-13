@@ -50,9 +50,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
 
   const { mutateAsync: signOut } = useSignOut();
 
-  const setPasswordResetPending = useAuthFlowStore(
-    (state) => state.setPasswordResetPending,
-  );
+  const setFlow = useAuthFlowStore((state) => state.setFlow);
 
   const {
     control,
@@ -73,7 +71,7 @@ export function ResetPasswordScreen({ navigation }: Props) {
       // End the recovery session so the user re-authenticates with the new password.
       await signOut();
 
-      setPasswordResetPending(false);
+      setFlow("idle");
 
       navigation.navigate("AuthResult", { result: "password-reset" });
     } catch {

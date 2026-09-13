@@ -31,7 +31,6 @@ import {
 } from "@/features/auth/schemas/authSchemas";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
-
 import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
@@ -50,9 +49,7 @@ export function LoginScreen({ navigation }: Props) {
 
   const { mutateAsync: login, isPending, error } = useLogin();
 
-  const setPasswordResetPending = useAuthFlowStore(
-    (state) => state.setPasswordResetPending,
-  );
+  const setFlow = useAuthFlowStore((state) => state.setFlow);
 
   const {
     control,
@@ -73,8 +70,8 @@ export function LoginScreen({ navigation }: Props) {
         password: values.password,
       });
 
-      // Clear any stale password-reset flag so a fresh login lands on Main.
-      setPasswordResetPending(false);
+      // Clear any stale auth flow so a fresh login lands on Main.
+      setFlow("idle");
     } catch {
       return;
     }

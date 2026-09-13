@@ -43,9 +43,6 @@ export async function signUpWithEmail(
         },
       });
 
-      console.log("signUpWithEmail data:", data);
-      console.log("signUpWithEmail error:", error);
-
     if (error) {
       throw normalizeError(error);
     }

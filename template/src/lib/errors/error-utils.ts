@@ -45,12 +45,118 @@ const SUPABASE_ERROR_MAP: Record<string, ErrorClassification> = {
     reportable: false,
   },
 
+  email_exists: {
+    code: ERROR_CODES.AUTH_USER_ALREADY_EXISTS,
+    retryable: false,
+    reportable: false,
+  },
+
+  weak_password: {
+    code: ERROR_CODES.AUTH_WEAK_PASSWORD,
+    retryable: false,
+    reportable: false,
+  },
+
+  same_password: {
+    code: ERROR_CODES.AUTH_SAME_PASSWORD,
+    retryable: false,
+    reportable: false,
+  },
+
+  signup_disabled: {
+    code: ERROR_CODES.AUTH_SIGNUP_DISABLED,
+    retryable: false,
+    reportable: false,
+  },
+
+  session_not_found: {
+    code: ERROR_CODES.AUTH_SESSION_EXPIRED,
+    retryable: false,
+    reportable: false,
+  },
+
   over_request_rate_limit: {
     code: ERROR_CODES.RATE_LIMITED,
     retryable: true,
     reportable: true,
   },
+
+  over_email_send_rate_limit: {
+    code: ERROR_CODES.RATE_LIMITED,
+    retryable: true,
+    reportable: true,
+  },
 };
+
+// Fallback matches for Supabase errors that arrive without a machine-readable `code`.
+const SUPABASE_MESSAGE_MAP: Array<{ match: string } & ErrorClassification> = [
+  {
+    match: "invalid login credentials",
+    code: ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "email not confirmed",
+    code: ERROR_CODES.AUTH_EMAIL_NOT_CONFIRMED,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "already registered",
+    code: ERROR_CODES.AUTH_USER_ALREADY_EXISTS,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "already been confirmed",
+    code: ERROR_CODES.AUTH_EMAIL_ALREADY_VERIFIED,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "already confirmed",
+    code: ERROR_CODES.AUTH_EMAIL_ALREADY_VERIFIED,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "otp has expired",
+    code: ERROR_CODES.AUTH_OTP_EXPIRED,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "expired or is invalid",
+    code: ERROR_CODES.AUTH_INVALID_OTP,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "new password should be different",
+    code: ERROR_CODES.AUTH_SAME_PASSWORD,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "password should be at least",
+    code: ERROR_CODES.AUTH_WEAK_PASSWORD,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "weak password",
+    code: ERROR_CODES.AUTH_WEAK_PASSWORD,
+    retryable: false,
+    reportable: false,
+  },
+  {
+    match: "signups not allowed",
+    code: ERROR_CODES.AUTH_SIGNUP_DISABLED,
+    retryable: false,
+    reportable: false,
+  },
+];
 
 // Substrings that reliably indicate a connectivity failure across platforms.
 const NETWORK_ERROR_HINTS = [
@@ -98,7 +204,21 @@ export function normalizeError(error: unknown): AppError {
         mapped.reportable,
       );
     }
+  }
 
+  const byMessage = matchMessageMap(message);
+
+  if (byMessage) {
+    return buildError(
+      byMessage.code,
+      error,
+      message,
+      byMessage.retryable,
+      byMessage.reportable,
+    );
+  }
+
+  if (isSupabaseError(error)) {
     const byStatus = classifyByStatus(error.status);
 
     if (byStatus) {
@@ -207,6 +327,18 @@ function matchesHint(message: string, hints: string[]): boolean {
   const normalized = message.toLowerCase();
 
   return hints.some((hint) => normalized.includes(hint));
+}
+
+function matchMessageMap(message: string): ErrorClassification | undefined {
+  if (!message) {
+    return undefined;
+  }
+
+  const normalized = message.toLowerCase();
+
+  return SUPABASE_MESSAGE_MAP.find((entry) =>
+    normalized.includes(entry.match),
+  );
 }
 
 function getErrorMessage(error: unknown): string {

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -24,8 +24,10 @@ import { OtpFormValues, otpSchema } from "@/features/auth/schemas/authSchemas";
 import { useVerifyOtp } from "@/features/auth/hooks/useVerifyOtp";
 import { useResendSignupOtp } from "@/features/auth/hooks/useResendSignupOtp";
 import { useResendPasswordResetOtp } from "@/features/auth/hooks/useResendPasswordResetOtp";
+import { useResendCooldown } from "@/features/auth/hooks/useResendCooldown";
 import { useSignOut } from "@/features/auth/hooks/useSignOut";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
+import { ERROR_CODES, normalizeError } from "@/lib/errors";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
@@ -42,22 +44,15 @@ export function OtpScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
 
   const [resent, setResent] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(60);
   const [isResending, setIsResending] = useState(false);
   const [resendError, setResendError] = useState<unknown>(null);
   const inputRefs = useRef<Array<FocusableInput | null>>([]);
 
-  useEffect(() => {
-    if (resendCooldown === 0) {
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setResendCooldown((current) => Math.max(current - 1, 0));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
+  const {
+    remaining: resendCooldown,
+    isActive: isCooldownActive,
+    start: startResendCooldown,
+  } = useResendCooldown(`${purpose}:${email}`);
 
   const {
     mutateAsync: verifyOtp,
@@ -70,12 +65,7 @@ export function OtpScreen({ route, navigation }: Props) {
   const { mutateAsync: resendPasswordResetOtp } = useResendPasswordResetOtp();
   const { mutateAsync: signOut } = useSignOut();
 
-  const setPasswordResetPending = useAuthFlowStore(
-    (state) => state.setPasswordResetPending,
-  );
-  const setAuthResultPending = useAuthFlowStore(
-    (state) => state.setAuthResultPending,
-  );
+  const setFlow = useAuthFlowStore((state) => state.setFlow);
 
   const {
     control,
@@ -91,9 +81,9 @@ export function OtpScreen({ route, navigation }: Props) {
   const onSubmit = async (values: OtpFormValues) => {
     try {
       if (purpose === "password-reset") {
-        setPasswordResetPending(true);
+        setFlow("resetting-password");
       } else {
-        setAuthResultPending(true);
+        setFlow("verifying-email");
       }
 
       await verifyOtp({
@@ -108,14 +98,21 @@ export function OtpScreen({ route, navigation }: Props) {
         await signOut();
         navigation.navigate("AuthResult", { result: "email-verified" });
       }
-    } catch {
-      setPasswordResetPending(false);
-      setAuthResultPending(false);
+    } catch (err) {
+      setFlow("idle");
+
+      // An already-verified account has nothing to confirm; send them to sign in.
+      if (
+        purpose === "email" &&
+        normalizeError(err).code === ERROR_CODES.AUTH_EMAIL_ALREADY_VERIFIED
+      ) {
+        navigation.navigate("Login");
+      }
     }
   };
 
   const handleResend = async () => {
-    if (isResending || resendCooldown > 0) {
+    if (isResending || isCooldownActive) {
       return;
     }
 
@@ -132,8 +129,16 @@ export function OtpScreen({ route, navigation }: Props) {
       }
 
       setResent(true);
-      setResendCooldown(60);
+      startResendCooldown();
     } catch (err) {
+      // An already-verified account has nothing to resend; send them to sign in.
+      if (
+        normalizeError(err).code === ERROR_CODES.AUTH_EMAIL_ALREADY_VERIFIED
+      ) {
+        navigation.navigate("Login");
+        return;
+      }
+
       setResendError(err);
     } finally {
       setIsResending(false);

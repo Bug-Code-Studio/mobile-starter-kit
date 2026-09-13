@@ -16,17 +16,11 @@ export function RootNavigator() {
   );
   const hasHydrated = useOnboardingStore((state) => state.hasHydrated);
 
-  const { session, isLoading: isAuthLoading } = useAuth();
+  const { status } = useAuth();
 
-  const passwordResetPending = useAuthFlowStore(
-    (state) => state.passwordResetPending,
-  );
-  const authResultPending = useAuthFlowStore(
-    (state) => state.authResultPending,
-  );
   const authFlowHydrated = useAuthFlowStore((state) => state.hasHydrated);
 
-  if (!hasHydrated || !authFlowHydrated || isAuthLoading) {
+  if (!hasHydrated || !authFlowHydrated || status === "initializing") {
     return <AppLoadingScreen />;
   }
 
@@ -34,10 +28,10 @@ export function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!isOnboardingCompleted ? (
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-      ) : !session || passwordResetPending || authResultPending ? (
-        <Stack.Screen name="Auth" component={AuthNavigator} />
-      ) : (
+      ) : status === "authenticated" ? (
         <Stack.Screen name="Main" component={MainNavigator} />
+      ) : (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
       )}
     </Stack.Navigator>
   );

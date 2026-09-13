@@ -13,9 +13,19 @@ export const ERROR_MESSAGE_KEYS: Record<ErrorCode, string> = {
 
   [ERROR_CODES.AUTH_USER_ALREADY_EXISTS]: "errors.auth.userAlreadyExists",
 
+  [ERROR_CODES.AUTH_EMAIL_ALREADY_VERIFIED]: "errors.auth.emailAlreadyVerified",
+
   [ERROR_CODES.AUTH_INVALID_OTP]: "errors.auth.invalidOtp",
 
   [ERROR_CODES.AUTH_OTP_EXPIRED]: "errors.auth.otpExpired",
+
+  [ERROR_CODES.AUTH_WEAK_PASSWORD]: "errors.auth.weakPassword",
+
+  [ERROR_CODES.AUTH_SAME_PASSWORD]: "errors.auth.samePassword",
+
+  [ERROR_CODES.AUTH_SIGNUP_DISABLED]: "errors.auth.signupDisabled",
+
+  [ERROR_CODES.AUTH_SESSION_EXPIRED]: "errors.auth.sessionExpired",
 
   [ERROR_CODES.UNAUTHORIZED]: "errors.unauthorized",
 

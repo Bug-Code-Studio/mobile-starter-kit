@@ -14,12 +14,10 @@ type Props = NativeStackScreenProps<AuthStackParamList, "AuthResult">;
 export function AuthResultScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const isEmailVerified = route.params.result === "email-verified";
-  const setAuthResultPending = useAuthFlowStore(
-    (state) => state.setAuthResultPending,
-  );
+  const setFlow = useAuthFlowStore((state) => state.setFlow);
 
   const handleContinue = () => {
-    setAuthResultPending(false);
+    setFlow("idle");
     navigation.navigate("Login");
   };
 

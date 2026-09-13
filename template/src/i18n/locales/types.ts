@@ -22,8 +22,13 @@ export type Locale = {
       invalidCredentials: string;
       emailNotConfirmed: string;
       userAlreadyExists: string;
+      emailAlreadyVerified: string;
       invalidOtp: string;
       otpExpired: string;
+      weakPassword: string;
+      samePassword: string;
+      signupDisabled: string;
+      sessionExpired: string;
     };
     errorState: {
       title: string;
@@ -106,6 +111,12 @@ export type Locale = {
       passwordResetTitle: string;
       passwordResetSubtitle: string;
       verify: string;
+    };
+  };
+  network: {
+    offline: {
+      title: string;
+      message: string;
     };
   };
 };

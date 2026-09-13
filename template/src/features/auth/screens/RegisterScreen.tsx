@@ -34,6 +34,10 @@ import {
   registerSchema,
 } from "@/features/auth/schemas/authSchemas";
 import { useRegister } from "@/features/auth/hooks/useRegister";
+import {
+  RESEND_COOLDOWN_SECONDS,
+  useOtpCooldownStore,
+} from "@/stores/otpCooldownStore";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
 import { ScrollView } from "@/components/ui/scroll-view";
@@ -50,6 +54,8 @@ export function RegisterScreen({ navigation }: Props) {
   const { t } = useTranslation();
 
   const { mutateAsync: register, isPending, error } = useRegister();
+
+  const startCooldown = useOtpCooldownStore((state) => state.startCooldown);
 
   const {
     control,
@@ -75,9 +81,12 @@ export function RegisterScreen({ navigation }: Props) {
         password: values.password,
       });
 
-      console.log("Registration successful:", session);
-
       if (!session) {
+        startCooldown(
+          `email:${values.email}`,
+          RESEND_COOLDOWN_SECONDS,
+        );
+
         navigation.navigate("OtpScreen", {
           email: values.email,
           purpose: "email",
