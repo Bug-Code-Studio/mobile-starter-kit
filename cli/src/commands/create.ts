@@ -19,6 +19,8 @@ import {
   success,
 } from '../utils/logger.js';
 
+import { bold, cyan, dim, red } from '../utils/colors.js';
+
 import type {
   PackageManager,
   ProjectConfig,
@@ -37,11 +39,17 @@ export async function createProject(
   options: CreateProjectOptions,
 ) {
   console.log(
-    `\nCreating ${names.displayName}...\n`,
+    `\n${bold(`Creating ${names.displayName}`)}${dim(' with the BugCode Studio starter kit...')}\n`,
   );
 
+  const startTime = Date.now();
+
+  const totalSteps = 3 + (options.install ? 1 : 0) + (options.git ? 1 : 0);
+
+  let currentStep = 0;
+
   try {
-    step('Copying template');
+    step('Copying template', ++currentStep, totalSteps);
 
     await copyTemplate(
       templatePath,
@@ -50,7 +58,7 @@ export async function createProject(
 
     success('Template copied');
 
-    step('Configuring package.json');
+    step('Configuring package.json', ++currentStep, totalSteps);
 
     await configurePackageJson(
       targetPath,
@@ -59,7 +67,7 @@ export async function createProject(
 
     success('package.json configured');
 
-    step('Configuring Expo');
+    step('Configuring Expo', ++currentStep, totalSteps);
 
     await configureAppConfig(
       targetPath,
@@ -71,6 +79,8 @@ export async function createProject(
     if (options.install) {
       step(
         `Installing dependencies with ${packageManager}`,
+        ++currentStep,
+        totalSteps,
       );
 
       await installDependencies(
@@ -86,7 +96,7 @@ export async function createProject(
     }
 
     if (options.git) {
-      step('Initializing Git');
+      step('Initializing Git', ++currentStep, totalSteps);
 
       await initializeGit(
         targetPath,
@@ -99,28 +109,31 @@ export async function createProject(
       );
     }
 
+    const elapsedSeconds = ((Date.now() - startTime) / 1000).toFixed(1);
+
     divider();
 
     success(
-      `${names.displayName} created successfully!`,
+      `${bold(names.displayName)} created successfully! ${dim(`(${elapsedSeconds}s)`)}`,
     );
 
     blank();
 
-    console.log('Next steps:\n');
+    console.log(bold('Next steps:'));
+    blank();
 
-    console.log(`  cd ${names.displayName}`);
-    console.log('  npx expo start');
+    console.log(`  ${cyan(`cd ${names.displayName}`)}`);
+    console.log(`  ${cyan('npx expo start')}`);
 
     divider();
   } catch (error) {
     console.error(
-      '\n✖ Project creation failed.',
+      `\n${red('✖')} Project creation failed.`,
     );
 
     if (await fs.pathExists(targetPath)) {
       console.log(
-        'Cleaning up incomplete project...',
+        dim('Cleaning up incomplete project...'),
       );
 
       try {

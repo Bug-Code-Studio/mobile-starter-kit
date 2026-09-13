@@ -1,13 +1,23 @@
-export function showHelp() {
+import { bold, cyan, dim } from './colors.js';
+
+import { getVersion } from './version.js';
+
+export async function showHelp() {
+  const version = await getVersion();
+
   console.log(`
-create-app
+${bold('create-app')} ${dim(`v${version}`)}
 
 Create a new Expo application from the BugCode Studio starter kit.
 
-Usage:
+${cyan('Usage:')}
   create-app <app-name> [options]
+  create-app doctor
 
-Options:
+${cyan('Commands:')}
+  doctor         Check your environment for required tools
+
+${cyan('Options:')}
   --npm          Use npm
   --yarn         Use yarn
   --pnpm         Use pnpm
@@ -16,11 +26,13 @@ Options:
   --no-install   Skip dependency installation
   --no-git       Skip Git initialization
 
-  --help         Show this help message
+  --version, -v  Show the CLI version
+  --help, -h     Show this help message
 
-Examples:
+${cyan('Examples:')}
   create-app MyApp
   create-app MyApp --yarn
   create-app MyApp --pnpm --no-git
+  create-app doctor
 `);
 }

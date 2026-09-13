@@ -6,6 +6,8 @@ import fs from "fs-extra";
 
 import { createProject } from "./commands/create.js";
 
+import { runDoctor } from "./commands/doctor.js";
+
 import { createProjectNames, validateProjectName } from "./utils/names.js";
 
 import { resolvePackageManager } from "./utils/package-manager.js";
@@ -14,15 +16,29 @@ import { parseArgs } from "./utils/args.js";
 
 import { error } from "./utils/logger.js";
 
+import { dim } from "./utils/colors.js";
+
 import { showHelp } from "./utils/help.js";
+
+import { getVersion } from "./utils/version.js";
 
 import { promptProjectConfig } from "./utils/prompts.js";
 
 async function main() {
   const args = process.argv.slice(2);
 
+  if (args.includes("--version") || args.includes("-v")) {
+    console.log(await getVersion());
+    return;
+  }
+
   if (args.includes("--help") || args.includes("-h")) {
-    showHelp();
+    await showHelp();
+    return;
+  }
+
+  if (args[0] === "doctor") {
+    await runDoctor();
     return;
   }
 
@@ -30,10 +46,12 @@ async function main() {
 
   try {
     parsedArgs = parseArgs(args);
-  } catch (error) {
-    console.error(
-      `\n✖ ${error instanceof Error ? error.message : "Invalid arguments."}`,
+  } catch (parseError) {
+    error(
+      parseError instanceof Error ? parseError.message : "Invalid arguments.",
     );
+
+    console.error(dim("\nRun create-app --help to see available options."));
 
     process.exit(1);
   }
@@ -148,11 +166,11 @@ async function main() {
   });
 }
 
-main().catch((error) => {
-  console.error(
-    `\n✖ ${
-      error instanceof Error ? error.message : "An unexpected error occurred."
-    }`,
+main().catch((unexpectedError) => {
+  error(
+    unexpectedError instanceof Error
+      ? unexpectedError.message
+      : "An unexpected error occurred.",
   );
 
   process.exit(1);
