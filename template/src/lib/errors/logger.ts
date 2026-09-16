@@ -1,10 +1,12 @@
+import { crashReporter } from "@/lib/crash";
 import { normalizeError } from "@/lib/errors/error-utils";
+import { logger } from "@/lib/logger";
 
 export type LogContext = Record<string, unknown>;
 
 /**
- * Central place to report errors. In development it logs to the console;
- * in production wire this up to a monitoring service (Sentry, Bugsnag, etc.).
+ * Central place to report errors. Always logs locally and, for reportable
+ * errors, forwards to the crash reporting provider (no-op until one is set).
  */
 export function logError(error: unknown, context?: LogContext): void {
   const appError = normalizeError(error);
@@ -19,11 +21,9 @@ export function logError(error: unknown, context?: LogContext): void {
     cause: appError.cause,
   };
 
-  if (typeof __DEV__ !== "undefined" && __DEV__) {
-    console.error("[AppError]", payload);
-    return;
-  }
+  logger.error(`[AppError:${appError.code}]`, payload);
 
-  // TODO: forward `payload` to your monitoring provider.
-  console.error(`[AppError:${appError.code}]`, appError.message);
+  if (appError.reportable) {
+    crashReporter.captureException(appError, context);
+  }
 }

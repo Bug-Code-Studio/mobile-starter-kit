@@ -31,6 +31,7 @@ import {
 } from "@/features/auth/schemas/authSchemas";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { useAuthFlowStore } from "@/stores/authFlowStore";
+import { analytics } from "@/lib/analytics";
 import { Text } from "@/components/ui/text";
 import { Box } from "@/components/ui/box";
 import { Pressable } from "@/components/ui/pressable";
@@ -64,11 +65,15 @@ export function LoginScreen({ navigation }: Props) {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
+    analytics.track("login_submitted");
+
     try {
       await login({
         email: values.email,
         password: values.password,
       });
+
+      analytics.track("login_completed");
 
       // Clear any stale auth flow so a fresh login lands on Main.
       setFlow("idle");

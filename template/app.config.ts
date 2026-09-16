@@ -13,6 +13,9 @@ const config: ExpoConfig = {
   android: {
     package: "com.bugcodestudio.mobilestarterkit",
   },
+  plugins:[
+    "expo-localization"
+  ]
 };
 
 export default config;

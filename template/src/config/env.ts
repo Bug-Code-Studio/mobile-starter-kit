@@ -1,6 +1,9 @@
 export const env = {
     supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL,
      supabaseKey: process.env.EXPO_PUBLIC_SUPABASE_KEY,
+    // Optional: analytics/crash/feature-flags stay no-op when the key is absent.
+    posthogKey: process.env.EXPO_PUBLIC_POSTHOG_KEY,
+    posthogHost: process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
 } as const;
 
 if(!env.supabaseUrl) {
