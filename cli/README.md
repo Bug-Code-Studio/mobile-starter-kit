@@ -236,6 +236,8 @@ Authenticated
 Main App
 ```
 
+The verification email that delivers the OTP is sent through Supabase custom SMTP. See [Email Delivery (Custom SMTP)](#email-delivery-custom-smtp).
+
 ### Password Reset
 
 Password recovery uses a separate OTP flow:
@@ -250,6 +252,35 @@ Account Verification
 Reset Password
    ↓
 Login
+```
+
+The password reset email that delivers the OTP is sent through Supabase custom SMTP. See [Email Delivery (Custom SMTP)](#email-delivery-custom-smtp).
+
+## Email Delivery (Custom SMTP)
+
+Both authentication emails — the signup verification OTP and the password reset OTP — are delivered by Supabase using a **custom SMTP provider**.
+
+Supabase's built-in email service is rate limited and intended for testing only, so production applications must configure their own SMTP provider (for example Resend, Postmark, SendGrid, Amazon SES, or Mailgun).
+
+### Configure SMTP
+
+In the Supabase Dashboard, go to **Authentication → Emails → SMTP Settings**, enable custom SMTP, and provide your provider's credentials:
+
+```text
+Host
+Port
+Username
+Password
+Sender name
+Sender email address
+```
+
+### Email templates
+
+The application verifies accounts and resets passwords with OTP codes rather than magic links. Make sure the **Confirm signup** and **Reset password** templates in **Authentication → Emails → Templates** include the token variable so the code is delivered:
+
+```text
+{{ .Token }}
 ```
 
 ## Navigation
@@ -297,7 +328,7 @@ Create a local `.env` file in your generated application:
 
 ```env
 EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
-EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+EXPO_PUBLIC_SUPABASE_KEY=your-supabase-publishable-key
 ```
 
 Do not commit environment files containing credentials or secrets.
